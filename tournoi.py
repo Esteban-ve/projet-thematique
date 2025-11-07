@@ -8,9 +8,13 @@ class Tournoi():
     def __init__(self, participants: list, match):
         self.participants = participants
         self.historique_rencontres = {}
-        self.n_rondes = 6 # défini en dure temporairement
+        self.n_rondes = 6 # défini en dur temporairement
         self.resultats = {}
         self.init_result()
+
+    def init_historique_rencontres(self):
+        for participant in self.participants:
+            self.historique_rencontres[participant] = []
 
     def init_results(self):
         for participant in self.participants:
