@@ -2,6 +2,8 @@ from random import random
 
 J1_GAGNE = 1
 J2_GAGNE = -1
+VICTOIRE = 1
+DEFAITE = -1
 MATCH_NUL = 0
 
 class Tournoi():
@@ -11,6 +13,7 @@ class Tournoi():
         self.n_rondes = 6 # défini en dur temporairement
         self.resultats = {}
         self.init_result()
+        self.init_historique_rencontres()
 
     def init_historique_rencontres(self):
         for participant in self.participants:
@@ -18,18 +21,25 @@ class Tournoi():
 
     def init_results(self):
         for participant in self.participants:
-            self.resultats[participant.nom] = 0                
+            self.resultats[participant.nom] = 0
+
     
-    def resultat_match(self, j1, j2):
+    def resultat_match(self, j1, j2, update_elo=False):
         #TODO le système de gestion de l'historique des rencontres sera généré dans la partie apparaiement
         assert j1 not in self.historique_rencontres[j2]
         self.historique_rencontres[j1].append(j2)
         self.historique_rencontres[j2].append(j1)
         diff = j2.elo - j1.elo
         expected_score = 1/(1 + 10**(-diff/400))
-        if expected_score > random():
+        if expected_score > random():      # match nul non pris en compte pour le calcul de l'ELO car le calcul de la probabilité de match nul en fonction de l'ELO des joueurs est impossible
+            if update_elo:
+                j1.update_elo(j2.elo, VICTOIRE)
+                j2.update_elo(j1.elo, DEFAITE)
             return J1_GAGNE
         else:
+            if update_elo:
+                j1.update_elo(j2.elo, DEFAITE)
+                j2.update_elo(j1.elo, VICTOIRE)
             return J2_GAGNE
 
     def match_avec_egalite(self,j1,j2):
@@ -37,7 +47,7 @@ class Tournoi():
         p=1/(1 + 10**(-diff/400))
         proba_de_victoire=random()
         if abs (p - proba_de_victoire )< 0.1:
-            return self._MATCH_NUL
+            return MATCH_NUL
         elif p > proba_de_victoire:
             j1.elo += j1.K * (1 - p)
             j2.elo -= j2.K * p
