@@ -1,3 +1,4 @@
+# Classe tournoi qui gère le déroulement d'un tournoi(système suisse pour l'instant)
 from random import random
 
 J1_GAGNE = 1
@@ -6,11 +7,11 @@ MATCH_NUL = 0
 
 class Tournoi():
     def __init__(self, participants: list, match):
-        self.participants = participants
+        self.participants = participants# liste des joueurs participants
         self.historique_rencontres = {}
         self.n_rondes = 6 # défini en dure temporairement
-        self.resultats = {}
-        self.init_result()
+        self.resultats = {} # dictionnaire associant à chaque joueur son score actuel
+        self.init_result() 
 
     def init_results(self):
         for participant in self.participants:
@@ -18,41 +19,34 @@ class Tournoi():
                 
     
     def resultat_match(self, j1, j2):
-        #TODO le système de gestion de l'historique des rencontres sera généré dans la partie apparaiement
-        assert j1 not in self.historique_rencontres[j2]
-        try:
-            self.historique_rencontres[j1].append(j2)
-        except KeyError:
-             self.historique_rencontres[j1] = []
-             self.historique_rencontres[j1].append(j2)
-        try:
-            self.historique_rencontres[j2].append(j1)
-        except KeyError:
-             self.historique_rencontres[j2] = []
-             self.historique_rencontres[j2].append(j1)
+        #Calculer la probabilité de victoire de j1 avec la formule Elo 
         diff = j2.elo - j1.elo
         expected_score = 1/(1 + 10**(-diff/400))
         if expected_score > random():
+            # mise à jour des cotes Elo des joueurs
+            j1.elo += j1.K * (1 - expected_score)
+            j2.elo -= j2.K * expected_score
             return J1_GAGNE
         else:
+            # mise à jour des cotes Elo des joueurs
+            j2.elo += j2.K * (1 - expected_score)
+            j1.elo -= j1.K * expected_score
             return J2_GAGNE
 
-    def match_avec_egalite(self,j1,j2):
+    ## EN réalité certains matchs peuvent se terminer par une égalité, on en tiendra compte plus tard
+    def match_avec_egalite(self,j1,j2): 
+        # match qui peut se terminer par une égalité
         diff=j2.elo - j1.elo
         p=1/(1 + 10**(-diff/400))
         proba_de_victoire=random()
         if abs (p - proba_de_victoire )< 0.1:
-            return self._MATCH_NUL
+            return MATCH_NUL
         elif p > proba_de_victoire:
-            j1.elo += j1.K * (1 - p)
-            j2.elo -= j2.K * p
             return J1_GAGNE
         else:
-            j2.elo += j2.K * (1- p)
-            j1.elo -= j1.K * p
             return J2_GAGNE
 
-
+    ## Fonction pour créer les appariements de la ronde
     def créer_apparaiement_ronde(self):
         n_participants = len(self.participants)
         participants_classé = sorted(self.participants, 
