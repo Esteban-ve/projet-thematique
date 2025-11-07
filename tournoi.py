@@ -20,16 +20,8 @@ class Tournoi():
     def resultat_match(self, j1, j2):
         #TODO le système de gestion de l'historique des rencontres sera généré dans la partie apparaiement
         assert j1 not in self.historique_rencontres[j2]
-        try:
-            self.historique_rencontres[j1].append(j2)
-        except KeyError:
-             self.historique_rencontres[j1] = []
-             self.historique_rencontres[j1].append(j2)
-        try:
-            self.historique_rencontres[j2].append(j1)
-        except KeyError:
-             self.historique_rencontres[j2] = []
-             self.historique_rencontres[j2].append(j1)
+        self.historique_rencontres[j1].append(j2)
+        self.historique_rencontres[j2].append(j1)
         diff = j2.elo - j1.elo
         expected_score = 1/(1 + 10**(-diff/400))
         if expected_score > random():
