@@ -44,9 +44,12 @@ class Tournoi():
         if abs (p - proba_de_victoire )< 0.1:
             return self._MATCH_NUL
         elif p > proba_de_victoire:
-            
+            j1.elo += j1.K * (1 - p)
+            j2.elo -= j2.K * p
             return J1_GAGNE
         else:
+            j2.elo += j2.K * (1- p)
+            j1.elo -= j1.K * p
             return J2_GAGNE
 
 
