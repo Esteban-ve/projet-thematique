@@ -13,10 +13,13 @@ class Tournoi():
         self.resultats = {} # dictionnaire associant à chaque joueur son score actuel
         self.init_result() 
 
+    def init_historique_rencontres(self):
+        for participant in self.participants:
+            self.historique_rencontres[participant] = []
+
     def init_results(self):
         for participant in self.participants:
-            self.resultats[participant.nom] = 0
-                
+            self.resultats[participant.nom] = 0                
     
     def resultat_match(self, j1, j2):
         #Calculer la probabilité de victoire de j1 avec la formule Elo 
@@ -56,14 +59,9 @@ class Tournoi():
         #TODO on ne peut pas valider l'apparaiement sans avoir vérifier qu'il ne respectait pas toutes les contraintes (ex: joueurs déja rencontrés, exempt, etc)
         if n_participants %2 == 0:
             for i in range (n_participants/2):
-                apparaiement.append((participants_classé[i],participants_classé[i+n/2]))
+                apparaiement.append((participants_classé[i],participants_classé[i+n_participants/2]))
         else:
             #TODO à écrir
             pass
 
         return apparaiement
-    
-
-
-
-
