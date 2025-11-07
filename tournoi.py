@@ -18,8 +18,7 @@ class Tournoi():
 
     def init_results(self):
         for participant in self.participants:
-            self.resultats[participant.nom] = 0
-                
+            self.resultats[participant.nom] = 0                
     
     def resultat_match(self, j1, j2):
         #TODO le système de gestion de l'historique des rencontres sera généré dans la partie apparaiement
@@ -58,14 +57,9 @@ class Tournoi():
         #TODO on ne peut pas valider l'apparaiement sans avoir vérifier qu'il ne respectait pas toutes les contraintes (ex: joueurs déja rencontrés, exempt, etc)
         if n_participants %2 == 0:
             for i in range (n_participants/2):
-                apparaiement.append((participants_classé[i],participants_classé[i+n/2]))
+                apparaiement.append((participants_classé[i],participants_classé[i+n_participants/2]))
         else:
             #TODO à écrir
             pass
 
         return apparaiement
-    
-
-
-
-
