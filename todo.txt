@@ -3,3 +3,6 @@ idée de trucs à faire :
 - Bien uniformisé les deux fonctions match avec et sans égalité
 - Mettre une condition avec ou sans modification des élo dans les tournois
 - Stocker le nombre de parties que fait un joueur et faire varier son K en cohérence
+- on pourrait créer également un tournoi de types toute ronde où tous les joueurs affronte tous les joueurs
+- un tournoi avec des brackets comme au tennis et voir si le meilleur est éliminé souvent car mal placé dans le tableau
+- regarder le classement : par score brut, par elo à la fin de la compétition, par nombre de victoire (sans compter les nuls), par score (en modifiant la valeur des résultats 1; 0.5; 0)
