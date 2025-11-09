@@ -1,0 +1,5 @@
+idée de trucs à faire : 
+- Piste d'analyse de critère d'équité, il pourraitêtre cool de faire une fonction qui analyse la différence entre le classement des joueurs par élo et le classement du joueur pour le tournoi ça pourrait etre notre premier critère d'équité
+- Bien uniformisé les deux fonctions match avec et sans égalité
+- Mettre une condition avec ou sans modification des élo dans les tournois
+- Stocker le nombre de parties que fait un joueur et faire varier son K en cohérence
