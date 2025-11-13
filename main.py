@@ -4,6 +4,7 @@ from joueur import Joueur
 from tournoi import Tournoi
 from statistics import mean, pstdev
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def simuler_un_tournoi(nb_rondes: int, seed: int | None = None):
     """Simule un tournoi suisse et renvoie les métriques clés + info sur le champion."""
@@ -56,6 +57,84 @@ def simuler_un_tournoi(nb_rondes: int, seed: int | None = None):
 
     return m["spearman"], m["mae_rank"], top3, top1_correct
 
+def simuler_un_tournoi_round_robin(seed: int | None = None):
+    """
+    Simule un tournoi toutes-rondes (round-robin) avec les mêmes joueurs que Belloy :
+    - chaque joueur rencontre tous les autres exactement une fois ;
+    - on utilise Tournoi.resultat_match pour mettre à jour les Elo ;
+    - on calcule les mêmes métriques que pour le système suisse.
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    # Même liste de joueurs que pour le suisse
+    joueurs = [
+        Joueur("BONNAY Yanis", 1310),
+        Joueur("CAERELS Arsene", 950),
+        Joueur("CAERELS Basile", 880),
+        Joueur("CAILLY Leo", 1480),
+        Joueur("CARDON Julia", 1080),
+        Joueur("COURTOIS Regis", 1772),
+        Joueur("DEVAL Clement", 1486),
+        Joueur("DUMEIGE Lucas", 999),
+        Joueur("DUMEIGE Mathieu", 1199),
+        Joueur("GAMBIER Thibaut", 1350),
+        Joueur("GAUMET Philippe", 1624),
+        Joueur("GUINET Auguste", 999),
+        Joueur("KOTWICA Arthur", 799),
+        Joueur("LANDAZURI Fernando", 1567),
+        Joueur("LEBLANC Francois", 1594),
+        Joueur("MABILLE Philippe", 1300),
+        Joueur("MARINI Jeremy", 1423),
+        Joueur("MARINI Manuel", 1820),
+        Joueur("MARINI Timothee", 1533),
+        Joueur("TERNISIEN Jean-Michel", 1464),
+        Joueur("VAST Maxence", 1489),
+    ]
+
+
+    tournoi = Tournoi(participants=joueurs, match=None)
+
+    # Génération de tous les duels possibles i < j
+    n = len(joueurs)
+    matchs = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            matchs.append((joueurs[i], joueurs[j]))
+
+    # Mélange de l'ordre des matchs (aléa de calendrier)
+    random.shuffle(matchs)
+
+    # On joue tous les matchs, sans nulles pour l'instant
+    for j1, j2 in matchs:
+        resultat = tournoi.resultat_match(j1, j2)
+        if resultat == 1:      # j1 gagne
+            tournoi.resultats[j1.nom] += 1
+        elif resultat == -1:    # j2 gagne
+            tournoi.resultats[j2.nom] += 1
+
+    # Construction du DataFrame final (analogue à df_last pour le suisse)
+    df_last = pd.DataFrame({
+        "nom": [j.nom for j in joueurs],
+        "niveau_reel": [getattr(j, "_niveau", None) for j in joueurs],
+        "elo": [j.elo for j in joueurs],
+        "score": [tournoi.resultats[j.nom] for j in joueurs],
+    })
+
+    # On trie et on ajoute le rang via ton rank_round
+    df_last = rank_round(df_last)
+
+    # Métriques d'équité
+    m = metrics(df_last)
+    top3 = topk_accuracy(df_last, k=3)
+
+    df_sorted_rank = df_last.sort_values("rang")
+    champion = df_sorted_rank.iloc[0]
+    meilleur_vrai = df_last.sort_values("niveau_reel", ascending=False).iloc[0]
+    top1_correct = (champion["nom"] == meilleur_vrai["nom"])
+
+    return m["spearman"], m["mae_rank"], top3, top1_correct
+
 
 def run_experiences(n_experiences: int, nb_rondes: int):
     spearmans = []
@@ -72,6 +151,29 @@ def run_experiences(n_experiences: int, nb_rondes: int):
             top1_corrects += 1
 
     print(f"\n=== Résumé sur {n_experiences} tournois de {nb_rondes} rondes ===")
+    print(f"Spearman moyen      : {mean(spearmans):.3f} (écart-type {pstdev(spearmans):.3f})")
+    print(f"MAE de rang moyenne : {mean(maes):.2f} (écart-type {pstdev(maes):.2f})")
+    print(f"Top-3 accuracy moy. : {mean(top3s):.2f}")
+    print(f"Top-1 correct       : {top1_corrects}/{n_experiences} "
+          f"= {top1_corrects/n_experiences:.2%}")
+
+    return spearmans, maes, top3s, top1_corrects
+
+def run_experiences_round_robin(n_experiences: int):
+    spearmans = []
+    maes = []
+    top3s = []
+    top1_corrects = 0
+
+    for t in range(n_experiences):
+        s, mae, top3, top1_ok = simuler_un_tournoi_round_robin(seed=t)
+        spearmans.append(s)
+        maes.append(mae)
+        top3s.append(top3)
+        if top1_ok:
+            top1_corrects += 1
+
+    print(f"\n=== Round-robin : Résumé sur {n_experiences} tournois toutes-rondes ===")
     print(f"Spearman moyen      : {mean(spearmans):.3f} (écart-type {pstdev(spearmans):.3f})")
     print(f"MAE de rang moyenne : {mean(maes):.2f} (écart-type {pstdev(maes):.2f})")
     print(f"Top-3 accuracy moy. : {mean(top3s):.2f}")
@@ -176,12 +278,11 @@ def plot_rounds_curves(results):
 
 if __name__ == "__main__":
     # On teste plusieurs nombres de rondes sur le même groupe de joueurs
-    liste_nb_rondes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-
+    liste_nb_rondes = [3, 5, 7, 9, 11]
+    
     results = sweep_rounds(n_experiences=200, liste_nb_rondes=liste_nb_rondes)
 
-    # Affichage texte (optionnel)
-    print("\n=== Résumé par nombre de rondes ===")
+    print("\n=== Résumé par nombre de rondes (système suisse) ===")
     for r in results:
         print(
             f"{r['nb_rondes']} rondes -> "
@@ -191,5 +292,7 @@ if __name__ == "__main__":
             f"Top-3={r['top3_moy']:.2f}"
         )
 
-    # Plots en fonction du nombre de rondes
     plot_rounds_curves(results)
+
+    # Système round-robin complet (tous contre tous)
+    spearmans_rr, maes_rr, top3s_rr, top1_rr = run_experiences_round_robin(n_experiences=200)
