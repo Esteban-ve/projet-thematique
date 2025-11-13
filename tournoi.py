@@ -15,6 +15,21 @@ class Tournoi():
         self.init_historique_rencontres()
         self.match = match  # fonction de simulation de match entre deux joueurs
 
+        self.snapshots = []
+
+    def _capture_snapshot(self, n_ronde: int):
+        snap = []
+        for j in self.participants:
+            snap.append({
+                "ronde": n_ronde,
+                "nom": j.nom,
+                "score": self.resultats[j.nom],
+                "elo": j.elo,
+                # on récupère le “niveau réel” si dispo (tu utilises _niveau)
+                "niveau_reel": getattr(j, "_niveau", None),
+            })
+        self.snapshots.append(snap)
+
     def init_historique_rencontres(self):
         for participant in self.participants:
             self.historique_rencontres[participant] = []
@@ -52,7 +67,7 @@ class Tournoi():
             return J2_GAGNE
 
     ## Fonction pour créer les appariements de la ronde
-    def créer_apparaiement_ronde(self):
+    def créer_apparaiement_ronde_suisse(self):
         n_participants = len(self.participants)
         participants_classés = sorted(self.participants, 
                                      key=lambda j: (self.resultats[j.nom], j.elo), 
@@ -109,7 +124,7 @@ class Tournoi():
     def jouer_ronde(self, n_ronde, avec_nulles: bool = True):
 
 
-        appariements = self.créer_apparaiement_ronde()
+        appariements = self.créer_apparaiement_ronde_suisse()
 
         for j1, j2 in appariements:
             if j2 is None:
@@ -129,4 +144,6 @@ class Tournoi():
             elif resultat == MATCH_NUL:
                 self.resultats[j1.nom] += 0.5
                 self.resultats[j2.nom] += 0.5
+        self._capture_snapshot(n_ronde)
+
 
