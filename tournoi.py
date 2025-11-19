@@ -53,18 +53,37 @@ class Tournoi():
             j2.elo += j2.K * expected_score         
             return J2_GAGNE
 
-    ## EN réalité certains matchs peuvent se terminer par une égalité, on en tiendra compte plus tard
-    def match_avec_egalite(self,j1,j2): 
-        # match qui peut se terminer par une égalité
-        diff=j1.elo - j2.elo 
-        p=1/(1 + 10**(-diff/400))
-        proba_de_victoire=random()
-        if abs (p - proba_de_victoire )< 0.01:
+    ## EN réalité certains matchs peuvent se terminer par une égalité, nous devons en tenir compte dans notre simulation
+    def match_avec_egalite(self, j1, j2):
+
+        diff = j1.elo - j2.elo
+        p = 1/(1 + 10**(-diff/400))   # probabilité théorique que j1 gagne
+        u = random()
+
+        # Cas nulle
+        if abs(p - u) < 0.01:
+            s1 = 0.5
+            s2 = 0.5
+            j1.elo += j1.K * (s1 - p)
+            j2.elo += j2.K * (s2 - (1 - p))
             return MATCH_NUL
-        elif p > proba_de_victoire:
+
+        # Victoire j1
+        elif p > u:
+            s1 = 1.0
+            s2 = 0.0
+            j1.elo += j1.K * (s1 - p)           # = K*(1 - p)
+            j2.elo += j2.K * (s2 - (1 - p))     # = -K*(1 - p)
             return J1_GAGNE
+
+        # Victoire j2
         else:
+            s1 = 0.0
+            s2 = 1.0
+            j1.elo += j1.K * (s1 - p)           # = -K*p
+            j2.elo += j2.K * (s2 - (1 - p))     # = K*p
             return J2_GAGNE
+
 
     ## Fonction pour créer les appariements de la ronde
     def créer_apparaiement_ronde_suisse(self):
