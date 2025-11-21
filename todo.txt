@@ -6,3 +6,5 @@ idée de trucs à faire :
 - on pourrait créer également un tournoi de types toute ronde où tous les joueurs affronte tous les joueurs
 - un tournoi avec des brackets comme au tennis et voir si le meilleur est éliminé souvent car mal placé dans le tableau
 - regarder le classement : par score brut, par elo à la fin de la compétition, par nombre de victoire (sans compter les nuls), par score (en modifiant la valeur des résultats 1; 0.5; 0)
+
+On va utiliser ce jeud e données : https://www.echecs.asso.fr/FicheTournoi.aspx?Ref=69535

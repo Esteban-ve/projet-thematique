@@ -1,6 +1,41 @@
-class Joueur():
-    def __init__(self, nom, niveau, K=40):# au échecs, le K est souvent fixé à 40 pour les débutants, il passe à 20 pour les joueurs intermédiaires et à 10 pour les joueurs qui sont déja passé au dessus de 2400 élo
+# joueur.py
+
+class Joueur:
+    def __init__(self, nom, niveau, K=40):
+        """
+        Représente un joueur avec :
+        - nom          : str
+        - niveau       : "force réelle" (ici on la fait coïncider avec l'Elo initial)
+        - K            : facteur K du système Elo
+        """
         self.nom = nom
-        self._niveau = niveau
-        self.elo = niveau  # pour l'instant l'elo reflete parfaitement le niveau intrinsèque
-        self.K = K  # facteur de correction de l'elo
+        self._niveau = niveau      # niveau réel (ground truth)
+        self.elo = niveau          # Elo courant (évolue pendant le tournoi)
+        self.K = K                 # facteur K pour les mises à jour Elo
+
+
+def joueurs_belloy():
+    """Renvoie la liste des joueurs du Grand Prix de la Somme (Belloy)."""
+    return [
+        Joueur("BONNAY Yanis", 1310),
+        Joueur("CAERELS Arsene", 950),
+        Joueur("CAERELS Basile", 880),
+        Joueur("CAILLY Leo", 1480),
+        Joueur("CARDON Julia", 1080),
+        Joueur("COURTOIS Regis", 1772),
+        Joueur("DEVAL Clement", 1486),
+        Joueur("DUMEIGE Lucas", 999),
+        Joueur("DUMEIGE Mathieu", 1199),
+        Joueur("GAMBIER Thibaut", 1350),
+        Joueur("GAUMET Philippe", 1624),
+        Joueur("GUINET Auguste", 999),
+        Joueur("KOTWICA Arthur", 799),
+        Joueur("LANDAZURI Fernando", 1567),
+        Joueur("LEBLANC Francois", 1594),
+        Joueur("MABILLE Philippe", 1300),
+        Joueur("MARINI Jeremy", 1423),
+        Joueur("MARINI Manuel", 1820),
+        Joueur("MARINI Timothee", 1533),
+        Joueur("TERNISIEN Jean-Michel", 1464),
+        Joueur("VAST Maxence", 1489),
+    ]
