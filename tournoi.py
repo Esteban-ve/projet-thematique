@@ -188,32 +188,54 @@ class Tournoi:
 
         self._capture_snapshot(n_ronde)
 
-    # ---------- élimination direct ----------
+        # ---------- élimination direct ----------
 
-def elimination_direct(self,avec_elo=False, avec_nulles: bool = True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
-    classement_de_sorti=[]
-    if avec_elo:
-        joueur_actuels=sorted(
-            self.participants,
-            key=lambda j: (j.elo)
-        )
-    else:
-        joueur_actuels=
-    while len(joueur_actuels)>1:
-        n=len(joueur_actuels)
-        joueur_suivant=[]
-        joueur_isole=-1
-        if len(joueur_actuels)%2==1:
+    def elimination_direct(self,avec_elo=False, avec_nulles: bool = True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+        classement_de_sorti=[]
+        joueur_actuels=[]
+
+        if avec_elo:
+            joueur_actuels=sorted(
+                self.participants,
+                key=lambda j: (j.elo),
+                reverse=True
+            ) #du meilleur au moins bon
+        else:
+            joueur_actuels=self.participants
+            joueur_actuels=random.shuffle(joueur_actuels)
+
+        while len(joueur_actuels)>1:
+            perdant=[]
+            n=len(joueur_actuels)
+            joueur_suivants=[]
+            joueur_isole=-1
+            if len(joueur_actuels)%2==1:
+                if avec_elo:
+                    joueur_isole=0
+                else:
+                    joueur_isole=random.randint(0,len(joueur_actuels))
+                joueur_actuels=joueur_actuels[0:joueur_isole] + joueur_actuels[joueur_isole:]
+                joueur_suivants.append(joueur_actuels[joueur_isole])
+                n=n-1
+            
+            for i in range(n/2):
+                if J1_GAGNE==self.resultat_match(joueur_actuels[i],joueur_actuels[n-i]):
+                    joueur_suivants.append(joueur_actuels[i])
+                    perdant.append(joueur_actuels[n-i])
+                else:
+                    joueur_suivants.append(joueur_actuels[n-i])
+                    perdant.append(joueur_actuels[i])
             if avec_elo:
-                joueur_isole=0
+                joueur_actuels=sorted(
+                    joueur_suivants,
+                    key=lambda j: (j.elo),
+                    reverse=True
+                ) #du meilleur au moins bon
             else:
-                joueur_isole=random.randint(0,len(joueur_actuels))
-            joueur_actuels=joueur_actuels[0:joueur_isole] + joueur_actuels[joueur_isole:]
-            n=n-1
-        
-        for i in range(n/2):
-            if J1_GAGNE==self.resultat_match(joueur_actuels[i],joueur_actuels[n-i]):
-                joueur_suivant.append(joueur_actuels[i])
-            else:
-                joueur_suivant.append(joueur_actuels[n-i])
+                joueur_actuels=joueur_suivants
+            classement_de_sorti.append(perdant)
+        rang_final=1
+        return classement_de_sorti
+    
+    
 
