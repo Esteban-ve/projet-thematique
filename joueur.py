@@ -2,6 +2,7 @@
 import numpy as np
 
 class Joueur:
+    #TODO ajouter un critère d'égalité avec le niveau intrinsèque gaussien
     def __init__(self, nom, niveau_E=0, niveau_V=1, K=40, elo=800):
         """
         Représente un joueur avec :
@@ -18,4 +19,3 @@ class Joueur:
     @property
     def niveau(self):
         return np.random.normal(self.niveau_E, self.niveau_V)
-
