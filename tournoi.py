@@ -56,7 +56,7 @@ class Tournoi:
         Match sans nulle : on tire un vainqueur en fonction de la proba Elo
         et on met à jour les Elo des deux joueurs.
         """
-        diff = j1.elo - j2.elo
+        diff = j1._niveau - j2._niveau
         expected_score = 1 / (1 + 10 ** (-diff / 400))   # proba que j1 gagne
         u = random()
 
@@ -76,7 +76,7 @@ class Tournoi:
         Match avec possibilité de nulle.
         On utilise le même expected_score, et on introduit une zone centrale de nulles.
         """
-        diff = j1.elo - j2.elo
+        diff = j1._niveau - j2._niveau
         p = 1 / (1 + 10 ** (-diff / 400))   # proba théorique que j1 gagne
         u = random()
 

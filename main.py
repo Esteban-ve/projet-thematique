@@ -251,3 +251,8 @@ if __name__ == "__main__":
     plot_hist_rangs_manuel(rangs_9, "Suisse 9 rondes - Rang de Manuel")
     plot_hist_rangs_manuel(rangs_11, "Suisse 11 rondes - Rang de Manuel")
     plot_hist_rangs_manuel(rangs_rr, "Round-robin complet - Rang de Manuel")
+
+
+
+
+
