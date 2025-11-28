@@ -13,6 +13,7 @@ class Joueur:
         self.niveau_E = niveau_E    # espérance et variance du niveau intrinsèque (gaussienne)
         self.niveau_V = niveau_V
         self.elo = elo          # Elo courant (évolue pendant le tournoi)
+       # Elo courant (évolue pendant le tournoi)
         self.K = K                 # facteur K pour les mises à jour Elo
 
     @property

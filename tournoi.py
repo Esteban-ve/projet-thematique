@@ -3,7 +3,6 @@ from random import random
 
 J1_GAGNE = 1
 J2_GAGNE = -1
-MATCH_NUL = 0
 
 
 class Tournoi:
@@ -14,12 +13,12 @@ class Tournoi:
     - snapshots : historique des rondes pour l'analyse (DataFrame ensuite)
     """
 
-    def __init__(self, participants: list, match=None):
+    def __init__(self, participants: list, match):
         self.participants = participants              # liste des joueurs
         self.historique_rencontres = {}              # qui a joué contre qui
         self.n_rondes = 6                            # non utilisé pour l'instant
         self.resultats = {}                          # score par nom
-        self.match = match                           # pas encore utilisé
+        self.match = match                      # pas encore utilisé
 
         self.snapshots = []                          # pour analytics
 
@@ -50,61 +49,6 @@ class Tournoi:
         self.snapshots.append(snap)
 
     # ---------- simulation d'un match ----------
-
-    def resultat_match(self, j1, j2):
-        """
-        Match sans nulle : on tire un vainqueur en fonction de la proba Elo
-        et on met à jour les Elo des deux joueurs.
-        """
-        diff = j1._niveau - j2._niveau
-        expected_score = 1 / (1 + 10 ** (-diff / 400))   # proba que j1 gagne
-        u = random()
-
-        if expected_score > u:
-            # Victoire j1
-            j1.elo += j1.K * (1 - expected_score)
-            j2.elo -= j2.K * (1 - expected_score)
-            return J1_GAGNE
-        else:
-            # Victoire j2
-            j1.elo -= j1.K * expected_score
-            j2.elo += j2.K * expected_score
-            return J2_GAGNE
-
-    def match_avec_egalite(self, j1, j2):
-        """
-        Match avec possibilité de nulle.
-        On utilise le même expected_score, et on introduit une zone centrale de nulles.
-        """
-        diff = j1._niveau - j2._niveau
-        p = 1 / (1 + 10 ** (-diff / 400))   # proba théorique que j1 gagne
-        u = random()
-
-        # Cas nulle
-        if abs(p - u) < 0.01:
-            s1 = 0.5
-            s2 = 0.5
-            j1.elo += j1.K * (s1 - p)
-            j2.elo += j2.K * (s2 - (1 - p))
-            return MATCH_NUL
-
-        # Victoire j1
-        elif p > u:
-            s1 = 1.0
-            s2 = 0.0
-            j1.elo += j1.K * (s1 - p)
-            j2.elo += j2.K * (s2 - (1 - p))
-            return J1_GAGNE
-
-        # Victoire j2
-        else:
-            s1 = 0.0
-            s2 = 1.0
-            j1.elo += j1.K * (s1 - p)
-            j2.elo += j2.K * (s2 - (1 - p))
-            return J2_GAGNE
-
-    # ---------- appariements suisses ----------
 
     def créer_apparaiement_ronde_suisse(self):
         """
@@ -164,7 +108,7 @@ class Tournoi:
 
     # ---------- déroulement d'une ronde ----------
 
-    def jouer_ronde(self, n_ronde: int, avec_nulles: bool = True):
+    def jouer_ronde(self, n_ronde: int):
         appariements = self.créer_apparaiement_ronde_suisse()
 
         for j1, j2 in appariements:
@@ -173,18 +117,11 @@ class Tournoi:
                 self.resultats[j1.nom] += 1
                 continue
 
-            if avec_nulles:
-                resultat = self.match_avec_egalite(j1, j2)
-            else:
-                resultat = self.resultat_match(j1, j2)
-
+            resultat = self.match.resultat(j1, j2)
             if resultat == J1_GAGNE:
                 self.resultats[j1.nom] += 1
             elif resultat == J2_GAGNE:
                 self.resultats[j2.nom] += 1
-            elif resultat == MATCH_NUL:
-                self.resultats[j1.nom] += 0.5
-                self.resultats[j2.nom] += 0.5
 
         self._capture_snapshot(n_ronde)
 
@@ -219,7 +156,7 @@ class Tournoi:
                 n=n-1
             
             for i in range(n/2):
-                if J1_GAGNE==self.resultat_match(joueur_actuels[i],joueur_actuels[n-i]):
+                if J1_GAGNE==self.match.resultat(joueur_actuels[i],joueur_actuels[n-i]):
                     joueur_suivants.append(joueur_actuels[i])
                     perdant.append(joueur_actuels[n-i])
                 else:

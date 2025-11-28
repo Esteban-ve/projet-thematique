@@ -7,21 +7,23 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from tournoi import Tournoi, J1_GAGNE, J2_GAGNE, MATCH_NUL
-from analytics import snapshots_to_df, rank_round, metrics, topk_accuracy
+from joueur import joueurs_belloy
+from tournoi import Tournoi, J1_GAGNE, J2_GAGNE
+from match import match
 
+from analytics import snapshots_to_df, rank_round, metrics, topk_accuracy
 
 # ---------- 1. SIMULATION D'UN TOURNOI SUISSE ----------
 
-def simuler_un_tournoi(nb_rondes: int, seed: int | None = None, avec_nulles: bool = True):
+def simuler_un_tournoi(nb_rondes: int, seed: int | None = None):
     if seed is not None:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=None)
+    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
 
     for r in range(1, nb_rondes + 1):
-        tournoi.jouer_ronde(r, avec_nulles=avec_nulles)
+        tournoi.jouer_ronde(r)
 
     df_all = snapshots_to_df(tournoi.snapshots)
     dernier = df_all["ronde"].max()
@@ -40,12 +42,12 @@ def simuler_un_tournoi(nb_rondes: int, seed: int | None = None, avec_nulles: boo
 
 # ---------- 2. SIMULATION ROUND-ROBIN ----------
 
-def simuler_un_tournoi_round_robin(seed: int | None = None, avec_nulles: bool = False):
+def simuler_un_tournoi_round_robin(seed: int | None = None):
     if seed is not None:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=None)
+    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
 
     n = len(joueurs)
     matchs = []
@@ -55,18 +57,12 @@ def simuler_un_tournoi_round_robin(seed: int | None = None, avec_nulles: bool = 
     random.shuffle(matchs)
 
     for j1, j2 in matchs:
-        if avec_nulles:
-            resultat = tournoi.match_avec_egalite(j1, j2)
-        else:
-            resultat = tournoi.resultat_match(j1, j2)
+        resultat = tournoi.match.resultat(j1, j2)
 
         if resultat == J1_GAGNE:
             tournoi.resultats[j1.nom] += 1
         elif resultat == J2_GAGNE:
             tournoi.resultats[j2.nom] += 1
-        elif resultat == MATCH_NUL:
-            tournoi.resultats[j1.nom] += 0.5
-            tournoi.resultats[j2.nom] += 0.5
 
     df_last = pd.DataFrame({
         "nom": [j.nom for j in joueurs],
@@ -89,12 +85,12 @@ def simuler_un_tournoi_round_robin(seed: int | None = None, avec_nulles: bool = 
 
 # ---------- 3. BOUCLES D’EXPÉRIENCES GLOBALES ----------
 
-def run_experiences(n_experiences, nb_rondes, avec_nulles=False):
+def run_experiences(n_experiences, nb_rondes):
     spearmans, maes, top3s = [], [], []
     top1_corrects = 0
 
     for t in range(n_experiences):
-        s, mae, top3, top1_ok = simuler_un_tournoi(nb_rondes, seed=t, avec_nulles=avec_nulles)
+        s, mae, top3, top1_ok = simuler_un_tournoi(nb_rondes, seed=t)
         spearmans.append(s)
         maes.append(mae)
         top3s.append(top3)
@@ -110,12 +106,12 @@ def run_experiences(n_experiences, nb_rondes, avec_nulles=False):
     return spearmans, maes, top3s, top1_corrects
 
 
-def run_experiences_round_robin(n_experiences, avec_nulles=False):
+def run_experiences_round_robin(n_experiences):
     spearmans, maes, top3s = [], [], []
     top1_corrects = 0
 
     for t in range(n_experiences):
-        s, mae, top3, top1_ok = simuler_un_tournoi_round_robin(seed=t, avec_nulles=avec_nulles)
+        s, mae, top3, top1_ok = simuler_un_tournoi_round_robin(seed=t)
         spearmans.append(s)
         maes.append(mae)
         top3s.append(top3)
@@ -133,15 +129,15 @@ def run_experiences_round_robin(n_experiences, avec_nulles=False):
 
 # ---------- 4. ANALYSE DU RANG DE MANUEL ----------
 
-def rang_manuel_suisse(nb_rondes: int, seed: int | None = None, avec_nulles: bool = False) -> int:
+def rang_manuel_suisse(nb_rondes: int, seed: int | None = None) -> int:
     if seed is not None:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=None)
+    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
 
     for r in range(1, nb_rondes + 1):
-        tournoi.jouer_ronde(r, avec_nulles=avec_nulles)
+        tournoi.jouer_ronde(r)
 
     df_all = snapshots_to_df(tournoi.snapshots)
     dernier = df_all["ronde"].max()
@@ -150,12 +146,12 @@ def rang_manuel_suisse(nb_rondes: int, seed: int | None = None, avec_nulles: boo
     return int(df_last.loc[df_last["nom"] == "MARINI Manuel", "rang"].iloc[0])
 
 
-def rang_manuel_round_robin(seed: int | None = None, avec_nulles: bool = False) -> int:
+def rang_manuel_round_robin(seed: int | None = None) -> int:
     if seed is not None:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=None)
+    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
 
     n = len(joueurs)
     matchs = []
@@ -165,18 +161,12 @@ def rang_manuel_round_robin(seed: int | None = None, avec_nulles: bool = False) 
     random.shuffle(matchs)
 
     for j1, j2 in matchs:
-        if avec_nulles:
-            resultat = tournoi.match_avec_egalite(j1, j2)
-        else:
-            resultat = tournoi.resultat_match(j1, j2)
+        resultat = tournoi.match.resultat(j1, j2)
 
         if resultat == J1_GAGNE:
             tournoi.resultats[j1.nom] += 1
         elif resultat == J2_GAGNE:
             tournoi.resultats[j2.nom] += 1
-        elif resultat == MATCH_NUL:
-            tournoi.resultats[j1.nom] += 0.5
-            tournoi.resultats[j2.nom] += 0.5
 
     df_last = pd.DataFrame({
         "nom": [j.nom for j in joueurs],
@@ -189,12 +179,12 @@ def rang_manuel_round_robin(seed: int | None = None, avec_nulles: bool = False) 
     return int(df_last.loc[df_last["nom"] == "MARINI Manuel", "rang"].iloc[0])
 
 
-def distrib_rang_manuel_suisse(nb_rondes: int, n_experiences: int, avec_nulles: bool = False):
-    return [rang_manuel_suisse(nb_rondes, seed=t, avec_nulles=avec_nulles) for t in range(n_experiences)]
+def distrib_rang_manuel_suisse(nb_rondes: int, n_experiences: int):
+    return [rang_manuel_suisse(nb_rondes, seed=t) for t in range(n_experiences)]
 
 
-def distrib_rang_manuel_round_robin(n_experiences: int, avec_nulles: bool = False):
-    return [rang_manuel_round_robin(seed=t, avec_nulles=avec_nulles) for t in range(n_experiences)]
+def distrib_rang_manuel_round_robin(n_experiences: int):
+    return [rang_manuel_round_robin(seed=t) for t in range(n_experiences)]
 
 
 def print_stats_rangs(label: str, rangs: list[int]):
@@ -237,15 +227,15 @@ if __name__ == "__main__":
     n_exp = 500
 
     # Exemple : stats sur le rang de Manuel
-    rangs_7 = distrib_rang_manuel_suisse(7, n_exp, avec_nulles=False)
-    rangs_9 = distrib_rang_manuel_suisse(9, n_exp, avec_nulles=False)
-    rangs_11 = distrib_rang_manuel_suisse(11, n_exp, avec_nulles=False)
-    rangs_rr = distrib_rang_manuel_round_robin(n_exp, avec_nulles=False)
+    rangs_7 = distrib_rang_manuel_suisse(7, n_exp)
+    rangs_9 = distrib_rang_manuel_suisse(9, n_exp)
+    rangs_11 = distrib_rang_manuel_suisse(11, n_exp)
+    rangs_rr = distrib_rang_manuel_round_robin(n_exp)
 
-    print_stats_rangs("Suisse 7 rondes (sans nulles)", rangs_7)
-    print_stats_rangs("Suisse 9 rondes (sans nulles)", rangs_9)
-    print_stats_rangs("Suisse 11 rondes (sans nulles)", rangs_11)
-    print_stats_rangs("Round-robin complet (sans nulles)", rangs_rr)
+    print_stats_rangs("Suisse 7 rondes", rangs_7)
+    print_stats_rangs("Suisse 9 rondes", rangs_9)
+    print_stats_rangs("Suisse 11 rondes", rangs_11)
+    print_stats_rangs("Round-robin complet", rangs_rr)
 
     plot_hist_rangs_manuel(rangs_7, "Suisse 7 rondes - Rang de Manuel")
     plot_hist_rangs_manuel(rangs_9, "Suisse 9 rondes - Rang de Manuel")
