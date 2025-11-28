@@ -187,3 +187,33 @@ class Tournoi:
                 self.resultats[j2.nom] += 0.5
 
         self._capture_snapshot(n_ronde)
+
+    # ---------- élimination direct ----------
+
+def elimination_direct(self,avec_elo=False, avec_nulles: bool = True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+    classement_de_sorti=[]
+    if avec_elo:
+        joueur_actuels=sorted(
+            self.participants,
+            key=lambda j: (j.elo)
+        )
+    else:
+        joueur_actuels=
+    while len(joueur_actuels)>1:
+        n=len(joueur_actuels)
+        joueur_suivant=[]
+        joueur_isole=-1
+        if len(joueur_actuels)%2==1:
+            if avec_elo:
+                joueur_isole=0
+            else:
+                joueur_isole=random.randint(0,len(joueur_actuels))
+            joueur_actuels=joueur_actuels[0:joueur_isole] + joueur_actuels[joueur_isole:]
+            n=n-1
+        
+        for i in range(n/2):
+            if J1_GAGNE==self.resultat_match(joueur_actuels[i],joueur_actuels[n-i]):
+                joueur_suivant.append(joueur_actuels[i])
+            else:
+                joueur_suivant.append(joueur_actuels[n-i])
+
