@@ -66,7 +66,7 @@ def simuler_un_tournoi_round_robin(seed: int | None = None):
 
     df_last = pd.DataFrame({
         "nom": [j.nom for j in joueurs],
-        "niveau_reel": [getattr(j, "_niveau", None) for j in joueurs],
+        "niveau_reel": [getattr(j, "niveau", None) for j in joueurs],
         "elo": [j.elo for j in joueurs],
         "score": [tournoi.resultats[j.nom] for j in joueurs],
     })
@@ -170,7 +170,7 @@ def rang_manuel_round_robin(seed: int | None = None) -> int:
 
     df_last = pd.DataFrame({
         "nom": [j.nom for j in joueurs],
-        "niveau_reel": [getattr(j, "_niveau", None) for j in joueurs],
+        "niveau_reel": [getattr(j, "niveau", None) for j in joueurs],
         "elo": [j.elo for j in joueurs],
         "score": [tournoi.resultats[j.nom] for j in joueurs],
     })
