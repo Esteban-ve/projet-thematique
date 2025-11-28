@@ -1,4 +1,5 @@
 # main.py
+from bdd import joueurs_belloy
 import random
 from statistics import mean, pstdev
 from collections import Counter
@@ -6,7 +7,6 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from joueur import joueurs_belloy
 from tournoi import Tournoi, J1_GAGNE, J2_GAGNE, MATCH_NUL
 from analytics import snapshots_to_df, rank_round, metrics, topk_accuracy
 
