@@ -2,7 +2,7 @@
 import numpy as np
 
 class Joueur:
-    def __init__(self, nom, niveau_E=0, niveau_V=1, K=40, elo=800):
+    def __init__(self, nom, niveau_E=0, niveau_V=0, K=40, elo=1500):
         """
         Représente un joueur avec :
         - nom          : str
