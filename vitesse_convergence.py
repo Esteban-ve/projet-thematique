@@ -21,32 +21,45 @@ DEFAITE = 0
 NUL = 0.5  # inutile pour l'instant mais bon on sait jamais
 
 # init
-nb_joueurs = 30
+nb_tournois = 20
+nb_joueurs = 50
 variance = 2
 offset = 40
 ecart = 0.5
-K = 30
+K = 20
 participants  = [Joueur(str(i), offset+i*ecart, variance, K) for i in range(nb_joueurs)]
+resultats_participants = {participant:0 for participant in participants}  # reset à chaque tournoi, +1 pour victoire, +0 pour défaite
+ES_participants = {participant:0 for participant in participants}       # reset à chaque tournoi,à chaque rencontre on ajoute l'expected score
 historique_elo_participants = {participant:[participant.elo] for participant in participants}
 taux_changement_elo = {participant:[] for participant in participants}
 historique_norme_inf = []
 historique_norme_2 = []
 
 # loop
-for idx_tournois in range(50):
+for idx_tournois in range(nb_tournois):
     #round robin
+    resultats_participants = {participant:0 for participant in participants}
+    ES_participants = {participant:0 for participant in participants}
     for idx_j1 in range(len(participants)):
         for idx_j2 in range(idx_j1+1, len(participants)):
             j1 = participants[idx_j1]
             j2 = participants[idx_j2]
             difference_elo = j2.elo - j1.elo
             expected_score = 1 / (1 + 10 ** (difference_elo / 400))
-            if participants[idx_j1].niveau < participants[idx_j2].niveau:
-                j1.elo = j1.elo + j1.K * (DEFAITE - expected_score)
-                j2.elo = j2.elo + j2.K * (VICTOIRE - (1-expected_score))
-            else:
-                j1.elo = j1.elo + j1.K * (VICTOIRE - expected_score)
-                j2.elo = j2.elo + j2.K * (DEFAITE - (1-expected_score))
+            ES_participants[j1]+=expected_score
+            ES_participants[j2]+=(1-expected_score)
+            if j1.niveau < j2.niveau: # défaite j1
+               # j1.elo = j1.elo + j1.K * (DEFAITE - expected_score)
+               # j2.elo = j2.elo + j2.K * (VICTOIRE - (1-expected_score))
+               resultats_participants[j2]+=1
+            else:  # victoire j1
+                # j1.elo = j1.elo + j1.K * (VICTOIRE - expected_score)
+                # j2.elo = j2.elo + j2.K * (DEFAITE - (1-expected_score))
+                resultats_participants[j1]+=1
+
+    # calcul des elo après tournoi
+    for participant in participants:
+        participant.elo = participant.elo + participant.K * (resultats_participants[participant] - ES_participants[participant])
 
     # calcul du taux de changement des elo et update des historiques
     for participant in participants:
