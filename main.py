@@ -1,14 +1,17 @@
 # main.py
-from bdd import joueurs_belloy
+from bdd import *
 import random
 from statistics import mean, pstdev
 from collections import Counter
 
+import os
+import numpy as np
+from random import choices
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from joueur import joueurs_belloy
-from tournoi import Tournoi, J1_GAGNE, J2_GAGNE
+from joueur import *
+from tournoi import elimination_direct
 from match import match
 
 from analytics import snapshots_to_df, rank_round, metrics, topk_accuracy
@@ -245,4 +248,95 @@ if 0:# __name__ == "__main__":
 
 
 
+# ---------- 6. PLOT TOURNOI ----------
 
+
+def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots"):
+    n = 1000
+
+    data = {
+        "Uniforme": creer_joueurs_uniformes(n),
+        "Gaussienne": creer_joueurs_gaussiens(n),
+        "Bimodale": creer_joueurs_bimodaux(n),
+        "Asymétrique": creer_joueurs_asymetriques(n),
+        "Anormale": creer_joueurs_anormale(n),
+        "Remontada": creer_joueurs_remontada(n),
+        "Gaussiens_elo_identique": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=True),
+        "Gaussiens_elo_aleatoire": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False)
+    }
+
+    if savefig:
+        os.makedirs(folder, exist_ok=True)
+
+    for name, joueurs in data.items():
+        niveaux = np.array([j.niveau_E for j in joueurs])
+        elos = np.array([j.elo for j in joueurs])
+
+        idx = np.argsort(niveaux)
+        niveaux_trie = niveaux[idx]
+        elos_trie = elos[idx]
+
+        # --- lancement d’un tournoi ---
+        classement = tournoi_selectionne()
+
+        # mapping joueur -> rang
+        rang = {j: i for i, j in enumerate(classement)}
+
+        # ordonné comme classement
+        rang_values = np.array([rang[j] for j in classement])
+        niveaux_cl = np.array([j.niveau_E for j in classement])
+        elos_cl = np.array([j.elo for j in classement])
+
+        # Spearman niveau→rang et elo→rang
+        spearman_niv = np.corrcoef(np.argsort(niveaux_cl), rang_values)[0,1]
+        spearman_elo = np.corrcoef(np.argsort(elos_cl), rang_values)[0,1]
+
+        fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+        fig.suptitle(f"{name} (N={n})", fontsize=15)
+
+        c = '#' + ''.join(choices('0123456789ABCDEF', k=6))
+
+        # --- Histogramme ---
+        axs[0,0].hist(niveaux, bins=50, color=c, alpha=0.7, edgecolor='black')
+        axs[0,0].set_title("Répartition Niveau (Histogramme)")
+        axs[0,0].set_ylabel("Nombre de joueurs")
+        axs[0,0].grid(axis='y', alpha=0.3)
+
+        # --- Tri Niveau vs Elo ---
+        x = range(n)
+        axs[0,1].plot(x, niveaux_trie, label="Niveau réel", linewidth=2)
+        axs[0,1].plot(x, elos_trie, label="Elo estimé", linewidth=2)
+        axs[0,1].fill_between(x, niveaux_trie, elos_trie, alpha=0.2)
+        axs[0,1].set_title("Triés - Comparatif Niveau vs Elo")
+        axs[0,1].set_ylabel("Valeur")
+        axs[0,1].grid(alpha=0.3)
+        axs[0,1].legend()
+
+        # --- Elo vs Rang ---
+        axs[1,0].scatter(elos_cl, rang_values)
+        axs[1,0].invert_yaxis()
+        axs[1,0].set_title("Elo → Rang tournoi")
+        axs[1,0].set_xlabel("Elo")
+        axs[1,0].set_ylabel("Rang (0 = meilleur)")
+        axs[1,0].grid(alpha=0.3)
+        axs[1,0].text(0.05, 0.9, f"Spearman: {spearman_elo:.3f}", transform=axs[1,0].transAxes)
+
+        # --- Niveau vs Rang ---
+        axs[1,1].scatter(niveaux_cl, rang_values)
+        axs[1,1].invert_yaxis()
+        axs[1,1].set_title("Niveau → Rang tournoi")
+        axs[1,1].set_xlabel("Niveau")
+        axs[1,1].set_ylabel("Rang (0 = meilleur)")
+        axs[1,1].grid(alpha=0.3)
+        axs[1,1].text(0.05, 0.9, f"Spearman: {spearman_niv:.3f}", transform=axs[1,1].transAxes)
+
+        plt.tight_layout()
+
+        if savefig:
+            path = os.path.join(folder, f"{name}.png")
+            plt.savefig(path, dpi=200)
+
+        plt.show()
+
+
+plot_distributions_tournoi(lambda: elimination_direct())

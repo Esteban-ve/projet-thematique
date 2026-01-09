@@ -127,7 +127,7 @@ class Tournoi:
 
         # ---------- élimination direct ----------
 
-    def elimination_direct(self,avec_elo=False, avec_nulles: bool = True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+    def elimination_direct(self,avec_elo=False, avec_nulles: bool = False): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
         classement_de_sorti=[]
         joueur_actuels=[]
 
@@ -174,5 +174,3 @@ class Tournoi:
         rang_final=1
         return classement_de_sorti
     
-    
-
