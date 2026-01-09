@@ -1,5 +1,4 @@
 # main.py
-from bdd import *
 import random
 from statistics import mean, pstdev
 from collections import Counter
@@ -10,9 +9,10 @@ from random import choices
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from joueur import *
-from tournoi import elimination_direct
+from bdd import *
 from match import match
+from joueur import Joueur
+from tournoi import Tournoi, J1_GAGNE, J2_GAGNE
 
 from analytics import snapshots_to_df, rank_round, metrics, topk_accuracy
 
@@ -277,7 +277,8 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
         elos_trie = elos[idx]
 
         # --- lancement d’un tournoi ---
-        classement = tournoi_selectionne()
+        tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+        classement = getattr(tournoi, tournoi_selectionne)()
 
         # mapping joueur -> rang
         rang = {j: i for i, j in enumerate(classement)}
@@ -339,4 +340,4 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
         plt.show()
 
 
-plot_distributions_tournoi(lambda: elimination_direct())
+plot_distributions_tournoi("elimination_direct")

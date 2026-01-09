@@ -127,7 +127,7 @@ class Tournoi:
 
         # ---------- élimination direct ----------
 
-    def elimination_direct(self,avec_elo=False, avec_nulles: bool = False): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+    def elimination_direct(self,avec_elo=True, avec_nulles: bool = False): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
         classement_de_sorti=[]
         joueur_actuels=[]
 
@@ -151,16 +151,16 @@ class Tournoi:
                     joueur_isole=0
                 else:
                     joueur_isole=random.randint(0,len(joueur_actuels))
-                joueur_actuels=joueur_actuels[0:joueur_isole] + joueur_actuels[joueur_isole:]
                 joueur_suivants.append(joueur_actuels[joueur_isole])
+                del joueur_actuels[joueur_isole]
                 n=n-1
             
-            for i in range(n/2):
-                if J1_GAGNE==self.match.resultat(joueur_actuels[i],joueur_actuels[n-i]):
+            for i in range(n//2):
+                if J1_GAGNE==self.match.resultat(joueur_actuels[i],joueur_actuels[n-1-i]):
                     joueur_suivants.append(joueur_actuels[i])
-                    perdant.append(joueur_actuels[n-i])
+                    perdant.append(joueur_actuels[n-1-i])
                 else:
-                    joueur_suivants.append(joueur_actuels[n-i])
+                    joueur_suivants.append(joueur_actuels[n-1-i])
                     perdant.append(joueur_actuels[i])
             if avec_elo:
                 joueur_actuels=sorted(
