@@ -84,6 +84,21 @@ def creer_joueurs_asymetriques(n: int, elo_depart: int = 1200) -> list[Joueur]:
     return joueurs
 
 # -----------------------------------------------------------
+# 5. Distribution ANORMALE (Un individu est d'un niveau complètement différent des autres)
+# -----------------------------------------------------------
+
+def creer_joueurs_anormale(n: int, elo_depart: int = 1200) -> list[Joueur]:
+    """Test: L'excelent joueur au milieu de la masse, donc il devrait ressortir du lot"""
+    joueurs = []
+    # Moyenne 1500 (pas important), écart-type 30 (réduit)
+    niveaux = np.random.normal(1500, 30, n-1)
+    niveaux = np.append(niveaux, np.random.normal(2000, 30))
+    
+    for i, niv in enumerate(niveaux):
+        joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo_depart, niveau_E=niv))
+    return joueurs
+
+# -----------------------------------------------------------
 # Visualisation pour vérifier
 # -----------------------------------------------------------
 def visualiser_distributions():

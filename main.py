@@ -223,7 +223,7 @@ def plot_hist_rangs_manuel(rangs, titre):
 
 # ---------- 5. POINT D’ENTRÉE ----------
 
-if __name__ == "__main__":
+if 0:# __name__ == "__main__":
     n_exp = 500
 
     # Exemple : stats sur le rang de Manuel
