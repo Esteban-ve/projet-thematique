@@ -110,7 +110,8 @@ def visualiser_distributions():
         ("Uniforme", creer_joueurs_uniformes(n, elo_depart)),
         ("Gaussienne", creer_joueurs_gaussiens(n, elo_depart)),
         ("Bimodale", creer_joueurs_bimodaux(n, elo_depart)),
-        ("Asymétrique", creer_joueurs_asymetriques(n, elo_depart))
+        ("Asymétrique", creer_joueurs_asymetriques(n, elo_depart)),
+        ("Anormale", creer_joueurs_anormale(n, elo_depart))
     ]
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
@@ -141,7 +142,8 @@ def plot_distributions_histogrammes():
         "Uniforme": creer_joueurs_uniformes(n),
         "Gaussienne": creer_joueurs_gaussiens(n),
         "Bimodale": creer_joueurs_bimodaux(n),
-        "Asymétrique": creer_joueurs_asymetriques(n)
+        "Asymétrique": creer_joueurs_asymetriques(n),
+        "Anormale": creer_joueurs_anormale(n)
     }
 
     # Configuration de la figure : 4 lignes (distributions), 2 colonnes (types de graphiques)
