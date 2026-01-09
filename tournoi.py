@@ -162,17 +162,75 @@ class Tournoi:
                 else:
                     joueur_suivants.append(joueur_actuels[n-i])
                     perdant.append(joueur_actuels[i])
-            if avec_elo:
-                joueur_actuels=sorted(
-                    joueur_suivants,
-                    key=lambda j: (j.elo),
-                    reverse=True
-                ) #du meilleur au moins bon
-            else:
-                joueur_actuels=joueur_suivants
+            joueur_actuels=joueur_suivants
             classement_de_sorti.append(perdant)
         rang_final=1
         return classement_de_sorti
     
-    
+    def Poule_elimination_direct(self, taille_poule:int, avec_elo:bool=True):
+        classement_de_sorti=[]
+        joueur_actuels=[]
 
+        if avec_elo:
+            joueur_actuels=sorted(
+                self.participants,
+                key=lambda j: (j.elo),
+                reverse=True
+            ) #du meilleur au moins bon
+        else:
+            joueur_actuels=self.participants
+            random.shuffle(joueur_actuels)
+
+        nombre_de_poule=len(joueur_actuels)//taille_poule
+        poules=[]
+
+        for i in range(nombre_de_poule):
+            poules.append(joueur_actuels[i*taille_poule:(i+1)*taille_poule])
+        
+        for poule in poules:
+            tournoi_poule=Tournoi(poule,self.match)
+            tournoi_poule.elimination_direct(avec_elo)
+            classement_de_sorti.append(tournoi_poule.classement_de_sorti)
+        
+        return classement_de_sorti
+    
+    def elimination_double(self,avec_elo:bool=True):
+        classement_finale=[]
+        joueur_haut=[]
+        joueur_bas=[]
+        if avec_elo:
+            joueur_haut=sorted(
+                self.participants,
+                key=lambda j: (j.elo),
+                reverse=True
+            ) #du meilleur au moins bon
+        else:
+            joueur_haut=self.participants
+            random.shuffle(joueur_haut)
+        while len(joueur_haut)>1:
+            n=len(joueur_haut)
+            joueur_survivant=[]
+            for i in range(n//2):
+                
+                if J1_GAGNE==self.match.resultat(joueur_haut[i],joueur_haut[n-i-1]):
+                    joueur_bas.append(joueur_haut[n-i-1])
+                    joueur_survivant.append(joueur_haut[i])
+                else:
+                    joueur_bas.append(joueur_haut[i])
+                    joueur_survivant.append(joueur_haut[n-i-1])
+            joueur_haut=joueur_survivant
+            m= len(joueur_bas)
+            joueur_survivant_bas=[]
+            while len(joueur_bas)!=len(joueur_haut)/2:
+                m=len(joueur_bas)
+                joueur_survivant_bas=[]
+                for j in range(m//2):
+                    if J1_GAGNE==self.match.resultat(joueur_bas[j],joueur_bas[m-j-1]):
+                        classement_finale.append(joueur_bas[m-j-1])
+                        joueur_survivant_bas.append(joueur_bas[j])
+                    else:
+                        classement_finale.append(joueur_bas[j])
+                        joueur_survivant_bas.append(joueur_bas[m-j-1])
+                joueur_bas=joueur_survivant_bas
+        classement_finale.append(joueur_haut[0])
+        return classement_finale
