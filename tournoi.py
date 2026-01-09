@@ -150,7 +150,7 @@ class Tournoi:
                 if avec_elo:
                     joueur_isole=0
                 else:
-                    joueur_isole=random.randint(0,len(joueur_actuels))
+                    joueur_isole=random.randint(0,len(joueur_actuels)-1)
                 joueur_suivants.append(joueur_actuels[joueur_isole])
                 del joueur_actuels[joueur_isole]
                 n=n-1
@@ -164,7 +164,7 @@ class Tournoi:
                     perdant.append(joueur_actuels[i])
             joueur_actuels=joueur_suivants
             classement_de_sorti.append(perdant)
-        rang_final=1
+        classement_de_sorti.append(joueur_actuels)
         return classement_de_sorti
     
     def Poule_elimination_direct(self, taille_poule:int, avec_elo:bool=True):

@@ -175,7 +175,7 @@ def visualiser_distributions():
 
 # --- Fonction de Visualisation ---
 def plot_distributions_histogrammes():
-    n = 1000  # Nombre élevé pour avoir de beaux histogrammes
+    n = 100  # Nombre élevé pour avoir de beaux histogrammes
     
     # Création des données
     data = {

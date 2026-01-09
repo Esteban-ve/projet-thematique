@@ -252,7 +252,7 @@ if 0:# __name__ == "__main__":
 
 
 def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots"):
-    n = 1000
+    n = 500
 
     data = {
         "Uniforme": creer_joueurs_uniformes(n),
@@ -276,17 +276,35 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
         niveaux_trie = niveaux[idx]
         elos_trie = elos[idx]
 
+
         # --- lancement d’un tournoi ---
         tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
-        classement = getattr(tournoi, tournoi_selectionne)()
+        
+        # Vérifie que la méthode existe
+        if not hasattr(tournoi, tournoi_selectionne):
+            raise ValueError(f"La méthode '{tournoi_selectionne}' n'existe pas dans l'objet Tournoi.")
 
-        # mapping joueur -> rang
-        rang = {j: i for i, j in enumerate(classement)}
+        # Appel dynamique de la méthode
+        methode = getattr(tournoi, tournoi_selectionne)
+        classement = methode()  # le classement est une liste de liste [[les 1er si égalités], [ les 2imes], [ les 3ièmes] ...]
 
-        # ordonné comme classement
-        rang_values = np.array([rang[j] for j in classement])
-        niveaux_cl = np.array([j.niveau_E for j in classement])
-        elos_cl = np.array([j.elo for j in classement])
+        joueurs_aplatis = []
+        rang_values = []
+
+        for i, sous_liste in enumerate(classement):
+            # rang = plus petit pour le vainqueur
+            rang = len(classement) - 1 - i  # inverse l'ordre
+            for j in sous_liste:
+                joueurs_aplatis.append(j)
+                rang_values.append(rang)
+
+        rang_values = np.array(rang_values)
+
+        # Suite du code : histogrammes, plots, Spearman, etc.
+                
+        niveaux_cl = np.array([j.niveau_E for j in joueurs_aplatis])
+        elos_cl = np.array([j.elo for j in joueurs_aplatis])
+
 
         # Spearman niveau→rang et elo→rang
         spearman_niv = np.corrcoef(np.argsort(niveaux_cl), rang_values)[0,1]
