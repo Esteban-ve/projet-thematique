@@ -4,6 +4,7 @@ idée de trucs à faire :
     ligue 1 (aller retour)
     poule + élimination
     option looser brackets
+    
 - coder des configurations de départs
     niveau identique mais elo différent
     niveau différent mais elo identique
