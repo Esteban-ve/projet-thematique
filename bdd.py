@@ -135,6 +135,19 @@ def creer_joueurs_gaussiens_elo(n: int, bool_elo_depart_identique=True) -> list[
     return joueurs
 
 # -----------------------------------------------------------
+# 8. Distribution UNIFORME en variance
+# -----------------------------------------------------------
+def creer_joueurs_uniformes_variance(n: int, elo_depart: int = 1200) -> list[Joueur]:
+    """Meme niveau moyen (espérance) mais variance différent"""
+    joueurs = []
+    # Répartition linéaire exacte de 0 à 500
+    niveaux = np.linspace(0, 500, n)
+    
+    for i, niv in enumerate(niveaux):
+        joueurs.append(Joueur(f"J_Unif_{i}", elo=elo_depart, niveau_E=1500, niveau_V=niv))
+    return joueurs
+
+# -----------------------------------------------------------
 # Visualisation pour vérifier
 # -----------------------------------------------------------
 def visualiser_distributions():

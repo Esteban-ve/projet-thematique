@@ -25,7 +25,8 @@ data = {
         "Anormale": creer_joueurs_anormale(n),
         "Remontada": creer_joueurs_remontada(n),
         "Gaussiens_elo_identique": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=True),
-        "Gaussiens_elo_aleatoire": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False)
+        "Gaussiens_elo_aleatoire": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False),
+        "Uniforme_variance": creer_joueurs_uniformes_variance(n)
     }
 """
 
@@ -115,4 +116,4 @@ def etude_tournoi(tournoi_selectionne, nb_execution, savefig=False, folder="plot
 
         plt.show()
 
-etude_tournoi("elimination_direct", 100, savefig=False)
+etude_tournoi("elimination_double", 100, savefig=False)
