@@ -51,7 +51,7 @@ def creer_joueurs_gaussiens(n: int, elo_depart: int = 1200) -> list[Joueur]:
     """Test: La précision dans le 'ventre mou' (là où il y a le plus de monde)."""
     joueurs = []
     # Moyenne 1500, écart-type 300
-    niveaux = np.random.normal(1500, 300, n)
+    niveaux = np.random.normal(1500, 200, n)
     
     for i, niv in enumerate(niveaux):
         joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo_depart, niveau_E=niv))
@@ -124,7 +124,7 @@ def creer_joueurs_gaussiens_elo(n: int, bool_elo_depart_identique=True) -> list[
     """Test: L'influence du elo initiale sur le reste de la compétition, on choisit si le niveau est identique ou decorélé en gaussienne"""
     joueurs = []
     # Moyenne 1500, écart-type 300
-    niveaux = np.random.normal(1500, 300, n)
+    niveaux = np.random.normal(1500, 50, n)
     if bool_elo_depart_identique:   
         for i, niv in enumerate(niveaux):
             joueurs.append(Joueur(f"J_Gauss_{i}", elo=niv, niveau_E=1500))   
