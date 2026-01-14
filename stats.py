@@ -94,6 +94,9 @@ for V in valeurs_V:
     joueurs = {Joueur(str(i), i*ecart_entre_joueurs, V):i for i in range(n_joueurs)}  # chaque joueur représenté identifié par un nombre : utile pour utiliser
                                                                                       # les methodes spearmanr et kendalltau
     classement_reference = list(range(n_joueurs))   # joueurs classés du pire au meilleur
+    historique_MAE = []
+    historique_Kendall = [] 
+    historique_Spearman = []
     for idx_tournoi in range(n_tournois_simules):
         classement_tournoi = tournoi_points_round_robin_tiebreaker_is_match(list(joueurs.keys()))
         classement_tournoi_num = [joueurs[joueur] for joueur in classement_tournoi]
@@ -107,6 +110,7 @@ for V in valeurs_V:
     std_Kendall.append(np.std(historique_Kendall))
     moyenne_Spearman.append(np.mean(historique_Spearman))
     std_Spearman.append(np.std(historique_Spearman))
+
 
 plt.title("moyenne MAE")
 plt.plot(valeurs_V, moyenne_MAE)
