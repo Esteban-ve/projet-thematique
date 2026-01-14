@@ -358,4 +358,4 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
         plt.show()
 
 
-plot_distributions_tournoi("elimination_direct")
+plot_distributions_tournoi("elimination_directe")

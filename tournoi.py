@@ -21,12 +21,23 @@ class Tournoi:
         self.match = match                      # pas encore utilisé
 
         self.snapshots = []                          # pour analytics
-
+        
         self.init_results()
         self.init_historique_rencontres()
 
     # ---------- initialisation ----------
 
+    def type(self, tournoi, avec_elo:bool=True, taille_poule:int=4, n_qualifies:int=8,n_rondes:int=6):
+        type_tournoi ={
+            "swiss_round": self.swiss_rounde(avec_elo,n_rondes), 
+            "elimination_directe": self.elimination_directe(avec_elo),
+            "round_robin": self.round_robin(avec_elo),
+            "poule_elimination_directe": self.Poule_elimination_directe(avec_elo,taille_poule),
+            "elemination_double": self.elimination_double(avec_elo),
+            "ligue_1": self.ligue_1(avec_elo),
+            "ligue_playoff": self.ligue_playoff(avec_elo,n_qualifies),
+            }  # type de tournoi
+        return type_tournoi[tournoi]
     def init_historique_rencontres(self):
         for participant in self.participants:
             self.historique_rencontres[participant] = []
@@ -50,7 +61,7 @@ class Tournoi:
 
     # ---------- simulation d'un match ----------
 
-    def créer_apparaiement_ronde_suisse(self):
+    def créer_apparaiement_ronde_suisse(self, avec_elo: bool = True):
         """
         Crée les appariements d'une ronde suisse :
         - tri par (score, elo)
@@ -58,11 +69,19 @@ class Tournoi:
         - dernier joueur non apparié -> exempt (None)
         """
         n_participants = len(self.participants)
-        participants_classés = sorted(
+        if avec_elo:
+            participants_classés = sorted(
             self.participants,
             key=lambda j: (self.resultats[j.nom], j.elo),
             reverse=True,
-        )
+            )  # classemeent en fonction du nombre de points et de l'elo
+        else:
+            participants_classés = sorted(
+            self.participants,
+            key=lambda j: (self.resultats[j.nom]),
+            reverse=True,
+            )  # classemeent en fonction du nombre de points uniquement
+        
         appariements = []
         deja_paires = set()
         i = 0
@@ -108,8 +127,8 @@ class Tournoi:
 
     # ---------- déroulement d'une ronde ----------
 
-    def jouer_ronde(self, n_ronde: int):
-        appariements = self.créer_apparaiement_ronde_suisse()
+    def jouer_ronde(self, n_ronde: int,avec_elo: bool = True):
+        appariements = self.créer_apparaiement_ronde_suisse(avec_elo)
 
         for j1, j2 in appariements:
             if j2 is None:
@@ -122,12 +141,12 @@ class Tournoi:
                 self.resultats[j1.nom] += 1
             elif resultat == J2_GAGNE:
                 self.resultats[j2.nom] += 1
-
+    
         self._capture_snapshot(n_ronde)
 
         # ---------- élimination direct ----------
 
-    def elimination_direct(self,avec_elo=True, avec_nulles: bool = False): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+    def elimination_directe(self,avec_elo=True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
         classement_de_sorti=[]
         joueur_actuels=[]
 
@@ -167,7 +186,7 @@ class Tournoi:
         classement_de_sorti.append(joueur_actuels)
         return classement_de_sorti
     
-    def Poule_elimination_direct(self, taille_poule:int, avec_elo:bool=True):
+    def Poule_elimination_directe(self, avec_elo:bool=True, taille_poule:int=4):
         classement_de_sorti=[]
         joueur_actuels=[]
 
@@ -233,4 +252,60 @@ class Tournoi:
                         joueur_survivant_bas.append(joueur_bas[m-j-1])
                 joueur_bas=joueur_survivant_bas
         classement_finale.append(joueur_haut[0])
+        return classement_finale
+    
+    def ligue_1(self,avec_elo:bool=True): #TODO: attribué des niveau selon domicile ou exterieur
+        classement_finale=[]
+        score = { j.nom:0 for j in self.participants 
+                    }
+        for i in range (len(self.participants)):#Match aller
+            for j in range (i+1,len(self.participants)):
+                if J1_GAGNE==self.match.resultat(self.participants[i],self.participants[j]):
+                    score[self.participants[i].nom]+=1
+                else:
+                    score[self.participants[j].nom]+=1
+        
+        for i in range(len(self.participants)): #Match retour
+            for j in range (i+1,len(self.participants)):
+                if J1_GAGNE==self.match.resultat(self.participants[i],self.participants[j]):
+                    score[self.participants[i].nom]+=1
+                else:
+                    score[self.participants[j].nom]+=1
+        classement_finale=sorted(
+            self.participants,
+            key=lambda j: (score[j.nom]),
+            reverse=True
+        )
+
+        return classement_finale #Retourne la liste des joueurs dans l'ordre du classement du premier au dernier
+
+    def ligue_playoff(self, avec_elo:bool=True, n_qualifies:int=8):
+        classement_temporaire=self.ligue_1(avec_elo)
+        qualifies=classement_temporaire[:n_qualifies]
+        tournoi_playoff=Tournoi(qualifies,self.match)
+        classement_finale=tournoi_playoff.elimination_direct(avec_elo)
+        return classement_finale
+
+    def swiss_round(self, n_rondes:int=6, avec_elo:bool=True):
+        for n in range(n_rondes):
+            self.jouer_ronde(n+1, avec_elo)
+        classement_finale=sorted(
+            self.participants,
+            key=lambda j: (self.resultats[j.nom], j.elo),
+            reverse=True
+        )
+        return classement_finale
+
+    def round_robin(self, avec_elo:bool=True):
+        for i in range (len(self.participants)):
+            for j in range (i+1,len(self.participants)):
+                if J1_GAGNE==self.match.resultat(self.participants[i],self.participants[j]):
+                    self.resultats[self.participants[i].nom]+=1
+                else:
+                    self.resultats[self.participants[j].nom]+=1
+        classement_finale=sorted(
+            self.participants,
+            key=lambda j: (self.resultats[j.nom], j.elo),
+            reverse=True
+        )
         return classement_finale
