@@ -24,11 +24,22 @@ def attribution_puissance(classement, alpha=2):    # dernier : +1 point    premi
     return points
 
 
-def attribution_log(classement, alpha):     # attribue les points selon la fonction inverse de alpha^x, càd ln(x)/ln(alpha)
+def attribution_log(classement, alpha=2):     # attribue les points selon la fonction inverse de alpha^x, càd ln(x)/ln(alpha)
     n_joueurs = len(classement)             # dernier : +0points     premier : +log(n_joueurs)/log(alpha)
     points = {}
     i=0
     while i<n_joueurs:
         points[classement[i]]=log(n_joueurs-i)/log(alpha)
+        i+=1
+    return points
+
+def attribution_poly(classement,a,b,c,d,e):
+    # attribution selon ax^5+bx^4+cx^3+dx^2+e^x avec x le classement d'un joueur
+    # pour le fitting
+    n_joueurs = len(classement)
+    points = {}
+    i = 0
+    while i<n_joueurs:
+        points[classement[i]]=a*i**5+b*i**4+c*i**3+d*i**2+e*i
         i+=1
     return points
