@@ -5,35 +5,40 @@
 
 from numpy import log
 
-def attribution_linéaire(classement, alpha=1):   # dernier : +alpha point   permier : +alpha*n_joueurs points
+def attribution_linéaire(classement: list, alpha=1):   # dernier : +alpha point   permier : +alpha*n_rangs points
     n_joueurs = len(classement)
+    n_rangs = max(list(classement.values()))
     points = {}
-    i=0
-    while i<n_joueurs:
-        points[classement[i]]=alpha*(n_joueurs-i)
-        i+=1
+    for j,rang in classement.items():
+        points[j]=(n_rangs-rang+1)*alpha
     return points
 
-def attribution_puissance(classement, alpha=2):    # dernier : +1 point    premier : +alpha**(n_joueurs-1) points
-    n_joueurs = len(classement)            
+def attribution_puissance(classement, alpha=2):    # dernier : +1 point    premier : +alpha**(n_rangs-1) points
+    n_joueurs = len(classement)   
+    n_rangs = max(list(classement.values()))         
     points = {}
     i=0
-    while i<n_joueurs:
-        points[classement[i]]=pow(alpha,n_joueurs-i-1)
-        i+=1
+    for j,rang in classement.items():
+        points[j]=pow(alpha,(n_rangs-rang))
     return points
 
 
 def attribution_log(classement, alpha=2):     # attribue les points selon la fonction inverse de alpha^x, càd ln(x)/ln(alpha)
-    n_joueurs = len(classement)             # dernier : +0points     premier : +log(n_joueurs)/log(alpha)
+    n_joueurs = len(classement)             # dernier : +0points     premier : +log(n_rangs)/log(alpha)
+    n_rangs=max(list(classement.values()))
     points = {}
     i=0
-    while i<n_joueurs:
+    for j,rang in classement.items():
         points[classement[i]]=log(n_joueurs-i)/log(alpha)
+    while i<n_joueurs:
+        points[j]=log(n_rangs-rang+1)/log(alpha)
         i+=1
     return points
 
-def attribution_poly(classement,a,b,c,d,e):
+
+# inutilisé car on aura pas le temps de fit
+"""   
+def attribution_poly(classement,a,b,c,d,e):    
     # attribution selon ax^5+bx^4+cx^3+dx^2+e^x avec x le classement d'un joueur
     # pour le fitting
     n_joueurs = len(classement)
@@ -43,3 +48,4 @@ def attribution_poly(classement,a,b,c,d,e):
         points[classement[i]]=a*i**5+b*i**4+c*i**3+d*i**2+e*i
         i+=1
     return points
+"""
