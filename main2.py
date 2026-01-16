@@ -6,7 +6,7 @@ import numpy as np
 import attribution as att
 
 n_joueurs = 32
-participants = [Joueur(str(i), 1000*i) for i in range(n_joueurs)]
+participants = [Joueur(str(i), 100*i) for i in range(n_joueurs)]
 m = Match("NIVEAU")
 t = Tournoi(participants,m)
 """
@@ -18,10 +18,11 @@ for i in range(ceil(np.log2(n_joueurs))+1, 0, -1):
     print("\n", end="")
 """
 
-n_tournois = 20
-n_iter = 1
+n_tournois = 5
+n_iter = 100
 points = {j:0 for j in participants}
 classement_moyen = {j:0 for j in participants}    # moyenne du rang sur chaque saison
+classements_par_joueur = {j:[] for j in participants}    # les classements obtenus apres chaque iteration
 for _ in range(n_iter):
     # saison
     for _ in range(n_tournois):
@@ -32,8 +33,12 @@ for _ in range(n_iter):
             points[j]+=points_temp[j]
     classement_final = sorted(points.items(), key=lambda item: item[1])       # classement à la fin de la saison
     classement_final={classement_final[i][0]:i for i in range(len(classement_final))}
-    classement_moyen={j:classement_moyen[j]+classement_final[j] for j in participants}
+    for j in participants:
+        classements_par_joueur[j].append(classement_final[j])
 
-classement_liste=sorted(classement_moyen.items(), key=lambda item: item[1], reverse=True)
-classement_liste=[elt[0].nom for elt in classement_liste]
-print(classement_liste)
+# par joueur : on compile les rangs obtenus à chaque itération
+# on calcule moyenne et écart type
+# les joueurs sont déja triés par niveau
+# on a plus qu'à tracer les rangs moyens+barres d'erreur en fct du niveau réel
+
+
