@@ -18,26 +18,29 @@ class Tournoi:
     #  1. ROUND ROBIN (Championnat : Tout le monde vs Tout le monde)
     # =========================================================
 
-    def round_robin(self):
-        """Chaque joueur rencontre tous les autres une fois."""
+    def round_robin(self, return_scores=False):
+        """
+        Chaque joueur rencontre tous les autres une fois.
+        Si return_scores=True, renvoie aussi le score de chaque joueur.
+        """
         local_scores = {j: 0 for j in self.participants}
         n = len(self.participants)
         
-        # Double boucle pour générer toutes les paires uniques
         for i in range(n):
             for k in range(i + 1, n):
                 j1 = self.participants[i]
                 j2 = self.participants[k]
-                
                 vainqueur = Match.simuler(j1, j2)
                 local_scores[vainqueur] += 1
-                
-                # Mise à jour Elo immédiate
                 perdant = j2 if vainqueur == j1 else j1
                 Match.update_elo(vainqueur, perdant)
+        
+        classement = sorted(self.participants, key=lambda j: local_scores[j], reverse=True)
+        
+        if return_scores:
+            return classement, local_scores
+        return classement
 
-        # Retourne le classement : Victoires > Elo
-        return sorted(self.participants, key=lambda j: local_scores[j], reverse=True)
 
 
     # =========================================================
@@ -230,34 +233,34 @@ class Tournoi:
         return sorted(self.participants, key=lambda p: self.scores[p], reverse=True)
 
 
-def classement_avec_rangs(self, participants_tries, scores):
-    """
-    participants_tries : liste déjà triée (ex: retour de round_robin / systeme_suisse)
-    scores : dict {joueur: score}
-    
-    Retourne un dict du style :
-    { 1: [A], 2: [B, C], 4: [D] }
-    """
-    result = {}
-    current_rank = 1
-    i = 0
-    
-    while i < len(participants_tries):
-        joueur = participants_tries[i]
-        score = scores[joueur]
+    def classement_avec_rangs(self, participants_tries, scores):
+        """
+        participants_tries : liste déjà triée (ex: retour de round_robin / systeme_suisse)
+        scores : dict {joueur: score}
         
-        # groupe de joueurs ayant le même score
-        group = [joueur]
-        j = i + 1
-        while j < len(participants_tries) and scores[participants_tries[j]] == score:
-            group.append(participants_tries[j])
-            j += 1
+        Retourne un dict du style :
+        { 1: [A], 2: [B, C], 4: [D] }
+        """
+        result = {}
+        current_rank = 1
+        i = 0
         
-        result[current_rank] = group
+        while i < len(participants_tries):
+            joueur = participants_tries[i]
+            score = scores[joueur]
+            
+            # groupe de joueurs ayant le même score
+            group = [joueur]
+            j = i + 1
+            while j < len(participants_tries) and scores[participants_tries[j]] == score:
+                group.append(participants_tries[j])
+                j += 1
+            
+            result[current_rank] = group
+            
+            # Le rang suivant saute la taille du groupe
+            current_rank += len(group)
+            i = j
         
-        # Le rang suivant saute la taille du groupe
-        current_rank += len(group)
-        i = j
-    
-    return result
+        return result
 

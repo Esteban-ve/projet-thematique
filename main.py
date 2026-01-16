@@ -124,7 +124,7 @@ def afficher_graphes_points_vs_niveau(player_stats, formats, distributions, nive
 def main():
     # --- 1. PARAMÈTRES DE LA SIMULATION ---
     NB_SAISONS = 50      # Nombre de répétitions (Monte Carlo)
-    NB_TOURNOIS = 20     # Longueur d'une saison
+    NB_TOURNOIS = 5     # Longueur d'une saison
     NB_JOUEURS = 32
     ELO_DEPART = 1200
     
@@ -210,5 +210,4 @@ def main():
     print("\nGénération des graphiques...")
     afficher_graphes_points_vs_niveau(player_stats, FORMATS, DISTRIBUTIONS, niveaux_adn)
 
-if __name__ == "__main__":
-    main()
+main()
