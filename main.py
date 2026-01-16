@@ -6,6 +6,13 @@ from joueur import Joueur
 from saison import Saison
 from metrics import MetricsAnalyzer
 
+# --- 1. PARAMÈTRES DE LA SIMULATION ---
+NB_SAISONS = 50      # Nombre de répétitions (Monte Carlo)
+NB_TOURNOIS = 5     # Longueur d'une saison
+NB_JOUEURS = 32
+ELO_DEPART = 1200
+
+
 # Fixer la graine pour la reproductibilité (comparaison ceteris paribus)
 random.seed(42)
 np.random.seed(42)
@@ -122,11 +129,6 @@ def afficher_graphes_points_vs_niveau(player_stats, formats, distributions, nive
     plt.show()
 
 def main():
-    # --- 1. PARAMÈTRES DE LA SIMULATION ---
-    NB_SAISONS = 50      # Nombre de répétitions (Monte Carlo)
-    NB_TOURNOIS = 5     # Longueur d'une saison
-    NB_JOUEURS = 32
-    ELO_DEPART = 1200
     
     # On teste 3 formats
     FORMATS = ["suisse", "elimination", "round_robin"]
