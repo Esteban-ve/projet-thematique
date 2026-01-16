@@ -83,7 +83,7 @@ def afficher_graphes_points_vs_niveau(player_stats, formats, distributions, nive
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(20, 15), sharex=True)
     # sharey=False car Elo et Points n'ont pas la même échelle
     
-    fig.suptitle("Performance Moyenne : Points/Elo vs Niveau Intrinsèque\n(Barres d'erreur = Écart-type moyen du joueur)", fontsize=16, y=0.99)
+    fig.suptitle("Performance Moyenne : Points vs Niveau (Barres d'erreur = Écart-type moyen du joueur)", fontsize=16, y=0.99)
 
     for i, fmt in enumerate(formats):
         for j, dist in enumerate(distributions):
@@ -120,8 +120,10 @@ def afficher_graphes_points_vs_niveau(player_stats, formats, distributions, nive
 
             # Titres et Labels
             if i == 0: ax.set_title(dist.capitalize(), fontweight='bold', fontsize=14)
-            if j == 0: ax.set_ylabel(f"{fmt.upper()}\nPoints / Elo", fontweight='bold', fontsize=12)
+            if j == 0: ax.set_ylabel(f"{fmt.upper()}", fontweight='bold', fontsize=12)
             if i == n_rows - 1: ax.set_xlabel("Niveau Intrinsèque")
+
+
             
             ax.grid(True, linestyle='--', alpha=0.5)
 
