@@ -1,14 +1,15 @@
 idée de trucs à faire : 
 - ajouter différents type de tournoi:
-    élimination direct
-    ligue 1 (aller retour)
-    poule + élimination
-    option looser brackets
+    élimination direct-fait
+    ligue 1 (aller retour)-fait
+    poule + élimination-fait
+    option looser brackets fait
+    
 - coder des configurations de départs
-    niveau identique mais elo différent
-    niveau différent mais elo identique
-    avec 1 très fort
-    avec 1 très null
+    niveau identique mais elo différent-fait
+    niveau différent mais elo identique -fait
+    avec 1 très fort-fait
+    avec 1 très null-ne sera pas fait car symétrique au cas précédent
     ...
 - Piste d'analyse de critère d'équité, il pourraitêtre cool de faire une fonction qui analyse la différence entre le classement des joueurs par élo et le classement du joueur pour le tournoi ça pourrait etre notre premier critère d'équité
 - Mettre une condition avec ou sans modification des élo dans les tournois

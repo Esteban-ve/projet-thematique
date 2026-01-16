@@ -1,5 +1,8 @@
 from joueur import Joueur
+
+import os
 import numpy as np
+from random import choices
 import matplotlib.pyplot as plt
 
 def joueurs_belloy():
@@ -48,7 +51,7 @@ def creer_joueurs_gaussiens(n: int, elo_depart: int = 1200) -> list[Joueur]:
     """Test: La précision dans le 'ventre mou' (là où il y a le plus de monde)."""
     joueurs = []
     # Moyenne 1500, écart-type 300
-    niveaux = np.random.normal(1500, 300, n)
+    niveaux = np.random.normal(1500, 200, n)
     
     for i, niv in enumerate(niveaux):
         joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo_depart, niveau_E=niv))
@@ -84,6 +87,70 @@ def creer_joueurs_asymetriques(n: int, elo_depart: int = 1200) -> list[Joueur]:
     return joueurs
 
 # -----------------------------------------------------------
+# 5. Distribution ANORMALE (Un individu est d'un niveau complètement différent des autres)
+# -----------------------------------------------------------
+
+def creer_joueurs_anormale(n: int, elo_depart: int = 1200) -> list[Joueur]:
+    """Test: L'excelent joueur au milieu de la masse, donc il devrait ressortir du lot"""
+    joueurs = []
+    # Moyenne 1500 (pas important), écart-type 30 (réduit)
+    niveaux = np.random.normal(1500, 30, n-1)
+    
+    for i, niv in enumerate(niveaux):
+        joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo_depart, niveau_E=niv))
+    joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo_depart, niveau_E=2000))
+    return joueurs
+
+# -----------------------------------------------------------
+# 6. Distribution Remontada (Un individu est d'un niveau complètement supérieur aux autres mais est d'un elo inférieur)
+# -----------------------------------------------------------
+
+def creer_joueurs_remontada(n: int) -> list[Joueur]:
+    """Test: L'excelent joueur au milieu de la masse (qui elle est bien classé donc elo=niv), donc il devrait ressortir du lot"""
+    joueurs = []
+    # Moyenne 1500 (pas important), écart-type 30 (réduit)
+    niveaux = np.random.normal(1500, 30, n-1)
+      
+    for i, niv in enumerate(niveaux):
+        joueurs.append(Joueur(f"J_Gauss_{i}", elo=niv, niveau_E=niv))
+    
+    joueurs.append(Joueur(f"J_Gauss_{i}", elo=1200, niveau_E=1800))
+    return joueurs
+
+# -----------------------------------------------------------
+# 7. Distribution GAUSSIENNE_ELO (La Cloche - Standard)
+# -----------------------------------------------------------
+def creer_joueurs_gaussiens_elo(n: int, bool_elo_depart_identique=True) -> list[Joueur]:
+    """Test: L'influence du elo initiale sur le reste de la compétition, on choisit si le niveau est identique ou decorélé en gaussienne"""
+    joueurs = []
+    # Moyenne 1500, écart-type 300
+    niveaux = np.random.normal(1500, 50, n)
+    if bool_elo_depart_identique:   
+        for i, niv in enumerate(niveaux):
+            joueurs.append(Joueur(f"J_Gauss_{i}", elo=niv, niveau_E=1500))   
+    else:
+        elo=np.random.normal(1500,300,n)
+        for i, niv in enumerate(niveaux):
+             joueurs.append(Joueur(f"J_Gauss_{i}", elo=elo[i], niveau_E=niv))                        
+    return joueurs
+
+# -----------------------------------------------------------
+# 8. Distribution UNIFORME en variance
+# -----------------------------------------------------------
+def creer_joueurs_uniformes_variance(n: int, elo_depart: int = 1200) -> list[Joueur]:
+    """Meme niveau moyen (espérance) mais variance différent"""
+    joueurs = []
+    # Répartition linéaire exacte de 0 à 1000
+    niveaux = np.random.normal(1000, 300, n)
+    niveaux2 = np.linspace(1000, 2000, n)
+    
+    for i, niv in enumerate(niveaux):
+        joueurs.append(Joueur(f"J_Unif_{i}", elo=elo_depart, niveau_E=niveaux2[i], niveau_V=niv))
+    return joueurs
+
+
+
+# -----------------------------------------------------------
 # Visualisation pour vérifier
 # -----------------------------------------------------------
 def visualiser_distributions():
@@ -95,7 +162,12 @@ def visualiser_distributions():
         ("Uniforme", creer_joueurs_uniformes(n, elo_depart)),
         ("Gaussienne", creer_joueurs_gaussiens(n, elo_depart)),
         ("Bimodale", creer_joueurs_bimodaux(n, elo_depart)),
-        ("Asymétrique", creer_joueurs_asymetriques(n, elo_depart))
+        ("Asymétrique", creer_joueurs_asymetriques(n, elo_depart)),
+        ("Anormale", creer_joueurs_anormale(n, elo_depart)),
+        ("Remontada", creer_joueurs_remontada(n)),
+        ("Gaussiens_elo_identique", creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=True)),
+        ("Gaussiens_elo_aleatoire", creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False))
+
     ]
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
@@ -119,21 +191,25 @@ def visualiser_distributions():
 
 # --- Fonction de Visualisation ---
 def plot_distributions_histogrammes():
-    n = 1000  # Nombre élevé pour avoir de beaux histogrammes
+    n = 100  # Nombre élevé pour avoir de beaux histogrammes
     
     # Création des données
     data = {
         "Uniforme": creer_joueurs_uniformes(n),
         "Gaussienne": creer_joueurs_gaussiens(n),
         "Bimodale": creer_joueurs_bimodaux(n),
-        "Asymétrique": creer_joueurs_asymetriques(n)
+        "Asymétrique": creer_joueurs_asymetriques(n),
+        "Anormale": creer_joueurs_anormale(n),
+        "Remontada": creer_joueurs_remontada(n),
+        "Gaussiens_elo_identique": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=True),
+        "Gaussiens_elo_aleatoire": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False)
     }
 
-    # Configuration de la figure : 4 lignes (distributions), 2 colonnes (types de graphiques)
-    fig, axs = plt.subplots(4, 2, figsize=(14, 16))
+    # Configuration de la figure : len(data)=8 lignes (distributions), 2 colonnes (types de graphiques)
+    fig, axs = plt.subplots(len(data), 2, figsize=(14, 16))
     fig.suptitle(f"Analyse des Distributions (Population: {n} joueurs)", fontsize=16, y=0.95)
     
-    colors = ['#3498db', '#e74c3c', '#9b59b6', '#2ecc71'] # Bleu, Rouge, Violet, Vert
+    colors = ['#'+''.join(choices('0123456789ABCDEF', k=6)) for _ in range(len(data))]
 
     for i, (name, joueurs) in enumerate(data.items()):
         # Extraction des niveaux réels
@@ -168,5 +244,80 @@ def plot_distributions_histogrammes():
     plt.show()
 
 
-plot_distributions_histogrammes()
-visualiser_distributions()
+def plot_distributions_histogrammes_separe(savefig=False, folder="plots"):
+    n = 1000
+    
+    data = {
+        "Uniforme": creer_joueurs_uniformes(n),
+        "Gaussienne": creer_joueurs_gaussiens(n),
+        "Bimodale": creer_joueurs_bimodaux(n),
+        "Asymétrique": creer_joueurs_asymetriques(n),
+        "Anormale": creer_joueurs_anormale(n),
+        "Remontada": creer_joueurs_remontada(n),
+        "Gaussiens_elo_identique": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=True),
+        "Gaussiens_elo_aleatoire": creer_joueurs_gaussiens_elo(n, bool_elo_depart_identique=False)
+    }
+
+    def pearson_corr(x, y):
+        x = np.array(x)
+        y = np.array(y)
+        return np.corrcoef(x, y)[0, 1]
+
+
+    if savefig:
+        os.makedirs(folder, exist_ok=True)
+
+    for name, joueurs in data.items():
+        niveaux = np.array([j.niveau_E for j in joueurs])
+        elos = np.array([j.elo for j in joueurs])
+
+        # tri conjoint selon niveau
+        idx = np.argsort(niveaux)
+        niveaux_trie = niveaux[idx]
+        elos_trie = elos[idx]
+
+        fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+        fig.suptitle(f"{name} (N={n})", fontsize=15)
+
+        # couleur random
+        c = '#' + ''.join(choices('0123456789ABCDEF', k=6))
+
+        # --- HISTOGRAMME ---
+        axs[0].hist(niveaux, bins=50, color=c, alpha=0.7, edgecolor='black')
+        axs[0].set_title("Répartition Niveau (Histogramme)")
+        axs[0].set_ylabel("Nombre de joueurs")
+        axs[0].grid(axis='y', alpha=0.3)
+
+        # --- COURBES TRIÉES ---
+        x = range(n)
+
+        axs[1].plot(x, niveaux_trie, label="Niveau réel", linewidth=2)
+        axs[1].plot(x, elos_trie, label="Elo estimé", linewidth=2)
+        axs[1].fill_between(x, niveaux_trie, elos_trie, alpha=0.2)
+
+        axs[1].set_title("Triés - Comparatif Niveau vs Elo")
+        axs[1].set_ylabel("Valeur")
+        axs[1].grid(alpha=0.3)
+        axs[1].legend()
+
+        # --- METRIQUES QUANTITATIVES ---
+        pearson = pearson_corr(niveaux, elos)
+        rmse = np.sqrt(np.mean((niveaux - elos) ** 2))
+        diff_mean = np.mean(np.abs(niveaux - elos))
+
+        txt = f"Corr(Pearson) = {pearson:.3f}\nRMSE = {rmse:.1f}\nErreur moyenne = {diff_mean:.1f}"
+        fig.text(0.75, 0.25, txt, fontsize=10, bbox=dict(facecolor='white', alpha=0.7))
+
+        plt.tight_layout()
+
+        # --- SAUVEGARDE ---
+        if savefig:
+            path = os.path.join(folder, f"{name}.png")
+            plt.savefig(path, dpi=200)
+        
+        plt.show()
+
+
+#plot_distributions_histogrammes()
+#visualiser_distributions()
+#plot_distributions_histogrammes_separe()
