@@ -1,5 +1,8 @@
 # tournoi.py
-from random import random
+from random import random, shuffle, randint
+import numpy as np
+from match import Match
+from math import ceil
 
 J1_GAGNE = 1
 J2_GAGNE = -1
@@ -14,6 +17,7 @@ class Tournoi:
     """
 
     def __init__(self, participants: list, match):
+        assert isinstance(match, Match)
         self.participants = participants              # liste des joueurs
         self.historique_rencontres = {}              # qui a joué contre qui
         self.n_rondes = 6                            # non utilisé pour l'instant
@@ -147,9 +151,9 @@ class Tournoi:
         # ---------- élimination direct ----------
 
     def elimination_directe(self,avec_elo=True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc. Sinon : aléatoire
-        classement_de_sorti=[]
+        classement_de_sortie={}     # joueur:classement
+        classement_actuel = ceil(np.log2(len(self.participants))+1)   # si un joueur perd à ce round il aura ce classement
         joueurs_actuels=[]
-
         if avec_elo:
             joueurs_actuels=sorted(
                 self.participants,
@@ -157,8 +161,8 @@ class Tournoi:
                 reverse=True
             ) #du meilleur au moins bon
         else:
-            joueurs_actuels=self.participants
-            joueurs_actuels=random.shuffle(joueurs_actuels)
+            joueurs_actuels=self.participants.copy()
+            shuffle(joueurs_actuels)
 
         while len(joueurs_actuels)>1:
             perdant=[]
@@ -169,7 +173,7 @@ class Tournoi:
                 if avec_elo:
                     joueur_isole=0
                 else:
-                    joueur_isole=random.randint(0,len(joueurs_actuels)-1)
+                    joueur_isole=randint(0,len(joueurs_actuels)-1)
                 joueurs_suivants.append(joueurs_actuels[joueur_isole])
                 #del joueurs_actuels[joueur_isole]
                 joueurs_actuels.pop(joueur_isole)
@@ -178,17 +182,19 @@ class Tournoi:
             for i in range(n//2):
                 if self.match.resultat(joueurs_actuels[i],joueurs_actuels[n-1-i])==J1_GAGNE:
                     joueurs_suivants.append(joueurs_actuels[i])
+                    classement_de_sortie[joueurs_actuels[n-i-1]]=classement_actuel
                     perdant.append(joueurs_actuels[n-1-i])
                 else:
                     joueurs_suivants.append(joueurs_actuels[n-1-i])
+                    classement_de_sortie[joueurs_actuels[i]]=classement_actuel
                     perdant.append(joueurs_actuels[i])
             joueurs_actuels=joueurs_suivants
-            classement_de_sorti.append(perdant)
-        classement_de_sorti.append(joueurs_actuels)
-        return classement_de_sorti
+            classement_actuel-=1
+        classement_de_sortie[joueurs_actuels[0]] = classement_actuel   # dernier joueur, gagnant ultime
+        return classement_de_sortie
     
     def poule_elimination_directe(self, avec_elo:bool=True, taille_poule:int=4):
-        classement_de_sorti=[]
+        classement_de_sortie=[]
         joueurs_actuels=[]
 
         if avec_elo:
@@ -210,9 +216,9 @@ class Tournoi:
         for poule in poules:
             tournoi_poule=Tournoi(poule,self.match)
             tournoi_poule.elimination_direct(avec_elo)
-            classement_de_sorti.append(tournoi_poule.classement_de_sorti)
+            classement_de_sortie.append(tournoi_poule.classement_de_sortie)
         
-        return classement_de_sorti
+        return classement_de_sortie
     
     def elimination_double(self,avec_elo:bool=True):
         classement_finale=[]

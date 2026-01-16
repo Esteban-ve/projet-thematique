@@ -5,11 +5,11 @@ J2_GAGNE = -1
 
 
 
-class match:
+class Match:
 
     def __init__(self,type_match):
         self.type_match=type_match
-        self.Types={
+        self.types={
             "NIVEAU":self.niveau,
             "ELO":self.elo,
             "INTRINSEQUE":self.intrinseque
@@ -20,7 +20,7 @@ class match:
         Simule un match en tirant un vainqueur selon la probabilité calculée par Elo
         (basée ici sur le niveau intrasec des joueurs) et met à jour les Elo.
         """
-        diff = j1.niveau - j2.niveau
+        diff = j1.niveau_E - j2.niveau_E
         expected_score = 1 / (1 + 10 ** (-diff / 400))   # proba que j1 gagne
         u = random()
 
@@ -60,6 +60,6 @@ class match:
 
     def resultat(self, j1, j2):
         """Execute the selected match type and return its result."""
-        return self.Types[self.type_match](j1, j2)
+        return self.types[self.type_match](j1, j2)
 
             
