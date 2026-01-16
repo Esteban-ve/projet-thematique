@@ -29,10 +29,7 @@ def attribution_log(classement, alpha=2):     # attribue les points selon la fon
     points = {}
     i=0
     for j,rang in classement.items():
-        points[classement[i]]=log(n_joueurs-i)/log(alpha)
-    while i<n_joueurs:
         points[j]=log(n_rangs-rang+1)/log(alpha)
-        i+=1
     return points
 
 
