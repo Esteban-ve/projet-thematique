@@ -37,7 +37,8 @@ class Tournoi:
                 Match.update_elo(vainqueur, perdant)
 
         # Retourne le classement : Victoires > Elo
-        return sorted(self.participants, key=lambda j: (local_scores[j], j.elo), reverse=True)
+        return sorted(self.participants, key=lambda j: local_scores[j], reverse=True)
+
 
     # =========================================================
     #  2. DOUBLE ÉLIMINATION (Winner & Loser Brackets)
@@ -226,4 +227,37 @@ class Tournoi:
                 self.scores[vainqueur] += 1.0
 
         # Classement final
-        return sorted(self.participants, key=lambda p: (self.scores[p], p.elo), reverse=True)
+        return sorted(self.participants, key=lambda p: self.scores[p], reverse=True)
+
+
+def classement_avec_rangs(self, participants_tries, scores):
+    """
+    participants_tries : liste déjà triée (ex: retour de round_robin / systeme_suisse)
+    scores : dict {joueur: score}
+    
+    Retourne un dict du style :
+    { 1: [A], 2: [B, C], 4: [D] }
+    """
+    result = {}
+    current_rank = 1
+    i = 0
+    
+    while i < len(participants_tries):
+        joueur = participants_tries[i]
+        score = scores[joueur]
+        
+        # groupe de joueurs ayant le même score
+        group = [joueur]
+        j = i + 1
+        while j < len(participants_tries) and scores[participants_tries[j]] == score:
+            group.append(participants_tries[j])
+            j += 1
+        
+        result[current_rank] = group
+        
+        # Le rang suivant saute la taille du groupe
+        current_rank += len(group)
+        i = j
+    
+    return result
+
