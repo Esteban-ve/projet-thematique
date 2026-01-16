@@ -32,7 +32,7 @@ class Tournoi:
             "swiss_round": self.swiss_rounde(avec_elo,n_rondes), 
             "elimination_directe": self.elimination_directe(avec_elo),
             "round_robin": self.round_robin(avec_elo),
-            "poule_elimination_directe": self.Poule_elimination_directe(avec_elo,taille_poule),
+            "poule_elimination_directe": self.poule_elimination_directe(avec_elo,taille_poule),
             "elemination_double": self.elimination_double(avec_elo),
             "ligue_1": self.ligue_1(avec_elo),
             "ligue_playoff": self.ligue_playoff(avec_elo,n_qualifies),
@@ -146,65 +146,66 @@ class Tournoi:
 
         # ---------- élimination direct ----------
 
-    def elimination_directe(self,avec_elo=True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc
+    def elimination_directe(self,avec_elo=True): #Si on choisi avec elo, alors le favori jouera avec le pire joueur etc. Sinon : aléatoire
         classement_de_sorti=[]
-        joueur_actuels=[]
+        joueurs_actuels=[]
 
         if avec_elo:
-            joueur_actuels=sorted(
+            joueurs_actuels=sorted(
                 self.participants,
                 key=lambda j: (j.elo),
                 reverse=True
             ) #du meilleur au moins bon
         else:
-            joueur_actuels=self.participants
-            joueur_actuels=random.shuffle(joueur_actuels)
+            joueurs_actuels=self.participants
+            joueurs_actuels=random.shuffle(joueurs_actuels)
 
-        while len(joueur_actuels)>1:
+        while len(joueurs_actuels)>1:
             perdant=[]
-            n=len(joueur_actuels)
-            joueur_suivants=[]
+            n=len(joueurs_actuels)
+            joueurs_suivants=[]
             joueur_isole=-1
-            if len(joueur_actuels)%2==1:
+            if len(joueurs_actuels)%2==1:
                 if avec_elo:
                     joueur_isole=0
                 else:
-                    joueur_isole=random.randint(0,len(joueur_actuels)-1)
-                joueur_suivants.append(joueur_actuels[joueur_isole])
-                del joueur_actuels[joueur_isole]
+                    joueur_isole=random.randint(0,len(joueurs_actuels)-1)
+                joueurs_suivants.append(joueurs_actuels[joueur_isole])
+                #del joueurs_actuels[joueur_isole]
+                joueurs_actuels.pop(joueur_isole)
                 n=n-1
             
             for i in range(n//2):
-                if J1_GAGNE==self.match.resultat(joueur_actuels[i],joueur_actuels[n-1-i]):
-                    joueur_suivants.append(joueur_actuels[i])
-                    perdant.append(joueur_actuels[n-1-i])
+                if self.match.resultat(joueurs_actuels[i],joueurs_actuels[n-1-i])==J1_GAGNE:
+                    joueurs_suivants.append(joueurs_actuels[i])
+                    perdant.append(joueurs_actuels[n-1-i])
                 else:
-                    joueur_suivants.append(joueur_actuels[n-1-i])
-                    perdant.append(joueur_actuels[i])
-            joueur_actuels=joueur_suivants
+                    joueurs_suivants.append(joueurs_actuels[n-1-i])
+                    perdant.append(joueurs_actuels[i])
+            joueurs_actuels=joueurs_suivants
             classement_de_sorti.append(perdant)
-        classement_de_sorti.append(joueur_actuels)
+        classement_de_sorti.append(joueurs_actuels)
         return classement_de_sorti
     
-    def Poule_elimination_directe(self, avec_elo:bool=True, taille_poule:int=4):
+    def poule_elimination_directe(self, avec_elo:bool=True, taille_poule:int=4):
         classement_de_sorti=[]
-        joueur_actuels=[]
+        joueurs_actuels=[]
 
         if avec_elo:
-            joueur_actuels=sorted(
+            joueurs_actuels=sorted(
                 self.participants,
                 key=lambda j: (j.elo),
                 reverse=True
             ) #du meilleur au moins bon
         else:
-            joueur_actuels=self.participants
-            random.shuffle(joueur_actuels)
+            joueurs_actuels=self.participants
+            random.shuffle(joueurs_actuels)
 
-        nombre_de_poule=len(joueur_actuels)//taille_poule
+        nombre_de_poule=len(joueurs_actuels)//taille_poule
         poules=[]
 
         for i in range(nombre_de_poule):
-            poules.append(joueur_actuels[i*taille_poule:(i+1)*taille_poule])
+            poules.append(joueurs_actuels[i*taille_poule:(i+1)*taille_poule])
         
         for poule in poules:
             tournoi_poule=Tournoi(poule,self.match)

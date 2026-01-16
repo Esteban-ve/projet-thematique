@@ -12,9 +12,9 @@ class Saison:
             param= t.split(",")#récupère les paramètres du tournoi (Type, avecbool, taille_poule, n_qualifies, n_rondes)
             self.tournois.append(param)
     
-    class Participant: # Classe interne représentant un participant à la saison avec son taux de participation et sa richesse( capacité à payer les frais d'inscription)
-        def __init__(self, joueur, taux_participation=1, richesse=0):
-            self.joueur = joueur
+    class Participant(Joueur): # Classe interne représentant un participant à la saison avec son taux de participation et sa richesse( capacité à payer les frais d'inscription)
+        def __init__(self, nom, niveau_E=0, niveau_V=0, K=40, elo=1500, taux_participation=1, richesse=0):
+            super().__init__(nom, niveau_E, niveau_V, K, elo)
             self.probabilite_participation = taux_participation
             self.richesse = richesse
             self.point = 0
@@ -23,9 +23,9 @@ class Saison:
         def participe(self):
             return random() < self.probabilite_participation
     
-    def Complete(self,):# tout le monde participe à tous les tournois
+    def complete(self,participants):# tout le monde participe à tous les tournois
         for tournoi in self.tournois:
-            T=Tournoi([p.joueur for p in self.participants])
+            T=Tournoi(participants)
             if len(tournoi)==1:
                 classement_intermediaire=T.type(tournoi[0])
             elif len(tournoi)==2:
