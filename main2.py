@@ -7,7 +7,7 @@ import attribution as att
 import matplotlib.pyplot as plt
 
 n_joueurs = 32
-niveaux = sorted(np.random.normal(1500, 200, n_joueurs))    
+niveaux = sorted(np.random.normal(1500, 50, n_joueurs))    
 participants = [Joueur(str(i), niveaux[i]) for i in range(n_joueurs)]    # pire au meilleur
 m = Match("NIVEAU")
 t = Tournoi(participants,m)
@@ -20,8 +20,8 @@ for i in range(ceil(np.log2(n_joueurs))+1, 0, -1):
     print("\n", end="")
 """
 
-n_tournois = 5
-n_iter = 100
+n_tournois = 3
+n_iter = 1000
 points = {j:0 for j in participants}
 classement_moyen = {j:0 for j in participants}    # moyenne du rang sur chaque saison
 classements_par_joueur = {j:[] for j in participants}    # les classements obtenus apres chaque iteration
@@ -46,4 +46,7 @@ for _ in range(n_iter):
 moyenne_rang = {j:np.mean(classements_par_joueur[j]) for j in participants}
 std_rang = {j:np.std(classements_par_joueur[j]) for j in participants}
 
-plt.plot(niveaux, moyenne_rang, )
+participants_tries_niveau = sorted(participants, key=lambda item: item.niveau)
+plt.scatter(list(range(n_joueurs)), [moyenne_rang[j] for j in participants_tries_niveau])
+plt.errorbar(list(range(n_joueurs)), [moyenne_rang[j] for j in participants_tries_niveau], yerr=[std_rang[j] for j in participants_tries_niveau], fmt='o')
+plt.show()
