@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from bdd import *
-from match import match
+from match import Match
 from joueur import Joueur
 from tournoi import Tournoi, J1_GAGNE, J2_GAGNE
 
@@ -23,7 +23,7 @@ def simuler_un_tournoi(nb_rondes: int, seed: int | None = None):
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+    tournoi = Tournoi(participants=joueurs, match=Match("NIVEAU"))
 
     for r in range(1, nb_rondes + 1):
         tournoi.jouer_ronde(r)
@@ -50,7 +50,7 @@ def simuler_un_tournoi_round_robin(seed: int | None = None):
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+    tournoi = Tournoi(participants=joueurs, match=Match("NIVEAU"))
 
     n = len(joueurs)
     matchs = []
@@ -137,7 +137,7 @@ def rang_manuel_suisse(nb_rondes: int, seed: int | None = None) -> int:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+    tournoi = Tournoi(participants=joueurs, match=Match("NIVEAU"))
 
     for r in range(1, nb_rondes + 1):
         tournoi.jouer_ronde(r)
@@ -154,7 +154,7 @@ def rang_manuel_round_robin(seed: int | None = None) -> int:
         random.seed(seed)
 
     joueurs = joueurs_belloy()
-    tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+    tournoi = Tournoi(participants=joueurs, match=Match("NIVEAU"))
 
     n = len(joueurs)
     matchs = []
@@ -278,7 +278,7 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
 
 
         # --- lancement d’un tournoi ---
-        tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
+        tournoi = Tournoi(participants=joueurs, match=Match("NIVEAU"))
         
         # Vérifie que la méthode existe
         if not hasattr(tournoi, tournoi_selectionne):
@@ -286,8 +286,10 @@ def plot_distributions_tournoi(tournoi_selectionne, savefig=False, folder="plots
 
         # Appel dynamique de la méthode
         methode = getattr(tournoi, tournoi_selectionne)
-        classement = methode()  # le classement est une liste de liste [[les 1er si égalités], [ les 2imes], [ les 3ièmes] ...]
-
+        classement_dico = methode()  # le classement est une liste de liste [[les 1er si égalités], [ les 2imes], [ les 3ièmes] ...]
+        classement = []
+        for j,rang in classement.items():
+            pass
         joueurs_aplatis = []
         rang_values = []
 
