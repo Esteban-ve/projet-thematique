@@ -52,7 +52,7 @@ def etude_tournoi(tournoi_selectionne, nb_execution, savefig=False, folder="plot
         for _ in range(nb_execution):
             joueurs = [deepcopy(j) for j in joueurs_initiaux]
 
-            tournoi = Tournoi(participants=joueurs, match=match("INTRINSEQUE"))
+            tournoi = Tournoi(participants=joueurs, match=match("NIVEAU"))
             methode = getattr(tournoi, tournoi_selectionne)
             classement = methode()
 
@@ -212,6 +212,6 @@ def etude_variance(tournoi_selectionne, nb_execution, savefig=False, folder="plo
 
 #etude_tournoi("elimination_direct", 100, savefig=False)
 
-etude_variance("elimination_direct", 100, savefig=False)
+etude_variance("elimination_double", 100, savefig=False)
 
 

@@ -26,13 +26,13 @@ class match:
 
         if expected_score > u:
             # Victoire j1
-            #j1.elo += j1.K * (1 - expected_score)
-            #j2.elo -= j2.K * (1 - expected_score)
+            j1.elo += j1.K * (1 - expected_score)
+            j2.elo -= j2.K * (1 - expected_score)
             return J1_GAGNE
         else:
             # Victoire j2
-            #j1.elo -= j1.K * expected_score
-            #j2.elo += j2.K * expected_score
+            j1.elo -= j1.K * expected_score
+            j2.elo += j2.K * expected_score
             return J2_GAGNE
 
     def elo(self, j1, j2):
