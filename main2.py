@@ -4,9 +4,11 @@ from match import Match
 from math import ceil
 import numpy as np
 import attribution as att
+import matplotlib.pyplot as plt
 
 n_joueurs = 32
-participants = [Joueur(str(i), 100*i) for i in range(n_joueurs)]
+niveaux = sorted(np.random.normal(1500, 200, n_joueurs))    
+participants = [Joueur(str(i), niveaux[i]) for i in range(n_joueurs)]    # pire au meilleur
 m = Match("NIVEAU")
 t = Tournoi(participants,m)
 """
@@ -36,9 +38,12 @@ for _ in range(n_iter):
     for j in participants:
         classements_par_joueur[j].append(classement_final[j])
 
-# par joueur : on compile les rangs obtenus à chaque itération
+# par joueur : on compile les rangs obtenus à chaque itération (=classements_par_joueur)
 # on calcule moyenne et écart type
 # les joueurs sont déja triés par niveau
 # on a plus qu'à tracer les rangs moyens+barres d'erreur en fct du niveau réel
 
+moyenne_rang = {j:np.mean(classements_par_joueur[j]) for j in participants}
+std_rang = {j:np.std(classements_par_joueur[j]) for j in participants}
 
+plt.plot(niveaux, moyenne_rang, )
